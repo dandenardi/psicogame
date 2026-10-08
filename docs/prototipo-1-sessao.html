@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Sessão do Freudinho</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&family=Gloock&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap">
+<style>
+/* Layout: consultório à noite, um só visual. À esquerda o paciente fala (a transcrição é o palco);
+   à direita fica o terapeuta: a barra dele, o paciente e as quatro intervenções.
+   No celular empilha: barras, fala, intervenções. */
+:root{
+  color-scheme: dark;
+  --wall:#14302a; --panel:#1b3d35; --panel-hi:#25503f; --line:#3a6257;
+  --stripe:rgba(240,231,211,.022);
+  --ink:#f0e7d3; --muted:#a8bdb1;
+  --brass:#e6bd62; --brass-dim:#9a8850;
+  --rug:#d2604f; --rug-ink:#f2a596;
+  --sky:#a9d1ec;
+  --f-display:"Gloock","Iowan Old Style",Georgia,serif;
+  --f-speech:"Newsreader","Iowan Old Style",Georgia,serif;
+  --f-ui:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+}
+html{height:100%;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  height:100%;margin:0;background:var(--wall);color:var(--ink);
+  background-image:repeating-linear-gradient(90deg,var(--stripe) 0 1px,transparent 1px 30px);
+  font-family:var(--f-ui);font-size:15px;line-height:1.4;
+  display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto auto minmax(0,1fr) auto;
+  grid-template-areas:"head" "meters" "stage" "actions";
+  gap:10px;padding-inline:16px;padding-block:10px 12px;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible+label,summary:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
+/* cabeçalho */
+.head{grid-area:head;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.marca{font-family:var(--f-display);font-size:1.25rem;letter-spacing:.01em;margin-right:auto}
+.relogio{display:flex;align-items:center;gap:8px;color:var(--muted);font-variant-numeric:tabular-nums;font-size:.9rem}
+.ring{width:22px;height:22px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:4}
+.ring-bg{stroke:var(--panel-hi)}
+.ring-fg{stroke:var(--brass);stroke-dasharray:94.25;stroke-dashoffset:94.25;transition:stroke-dashoffset .5s}
+.mini{background:transparent;border:1px solid var(--line);border-radius:99px;padding:5px 14px;font-size:.85rem}
+.mini:hover{border-color:var(--muted)}
+
+/* medidores */
+.meters{grid-area:meters;display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
+.card{background:var(--panel);border-radius:14px;padding:12px 14px;min-width:0}
+.freud{display:flex;gap:12px;align-items:center}
+.quem{flex:1;min-width:0;display:grid;gap:8px}
+.linha{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.linha strong{font-weight:600;font-size:1rem}
+.sub{color:var(--muted);font-size:.82rem}
+.pill{font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--muted)}
+.av{width:54px;height:54px;flex:none}
+.av .head-c{fill:var(--panel-hi);stroke:var(--ink);stroke-width:2}
+.av .hair{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linecap:round}
+.av .beard{fill:var(--ink)}
+.av .mouth{fill:none;stroke:var(--wall);stroke-width:2;stroke-linecap:round}
+.av .lens{fill:none;stroke:var(--ink);stroke-width:1.8}
+.av .eye{fill:var(--ink)}
+.av .lid{fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round}
+.av[data-s="ok"] .e-tired,.av[data-s="ok"] .e-out,
+.av[data-s="cansado"] .e-ok,.av[data-s="cansado"] .e-out,
+.av[data-s="esgotado"] .e-ok,.av[data-s="esgotado"] .e-tired{display:none}
+.av[data-s="esgotado"]{opacity:.7}
+.pac{display:grid;gap:8px}
+.pac .duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.medidor{display:grid;gap:4px;min-width:0}
+.mrot{display:flex;justify-content:space-between;gap:8px;font-size:.8rem;color:var(--muted)}
+.val{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;display:flex;gap:6px;align-items:baseline}
+.delta{font-weight:500;font-size:.78rem;opacity:0}
+.delta.pisca{animation:pisca 1.8s ease-out}
+@keyframes pisca{0%{opacity:1;transform:translateY(3px)}15%{transform:none}70%{opacity:1}100%{opacity:0}}
+.trilho{position:relative}
+.bar{height:9px;background:var(--panel-hi);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;transition:width .45s}
+#m-sm .bar i{background:var(--sky)} #m-sm .delta{color:var(--sky)}
+#m-el .bar i{background:var(--brass)} #m-el .delta{color:var(--brass)}
+#m-re .bar i{background:var(--rug)} #m-re .delta{color:var(--rug-ink)}
+.escuta{position:absolute;left:45%;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.75;border-radius:1px}
+.legenda{font-size:.74rem;color:var(--muted)}
+
+/* palco */
+.stage{grid-area:stage;overflow-y:auto;min-height:0;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.col{max-width:44rem;padding-block:6px 20px}
+.eyebrow{font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--brass);margin:0 0 8px}
+#intro h1{font-family:var(--f-display);font-weight:400;font-size:clamp(1.8rem,5vw,2.6rem);line-height:1.1;margin:0 0 12px;text-wrap:balance}
+.ficha{font-family:var(--f-speech);font-size:1.2rem;line-height:1.45;margin:0 0 18px;max-width:34rem}
+.regras{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:8px;max-width:36rem;color:var(--muted)}
+.regras li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:6px;align-items:baseline}
+.regras li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--brass-dim);transform:translateY(-2px)}
+.regras b{color:var(--ink);font-weight:600}
+.ajustes{display:grid;gap:12px;margin-bottom:20px}
+.ajuste{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;border:0;padding:0;margin:0;min-width:0}
+.ajuste legend{float:left;padding:0;font-size:.82rem;color:var(--muted);min-width:11rem}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{border:1px solid var(--line);border-radius:99px;padding:5px 13px;font-size:.88rem;cursor:pointer}
+.seg input:checked+label{background:var(--panel-hi);border-color:var(--ink)}
+.go{background:var(--brass);color:var(--wall);border:0;border-radius:12px;padding:12px 22px;font-weight:700;font-size:1rem}
+.go:hover{filter:brightness(1.07)}
+#comecar{position:sticky;bottom:8px;box-shadow:0 0 0 8px var(--wall)}
+
+#log{display:grid;gap:14px}
+.turn{display:grid;grid-template-columns:3.4rem minmax(0,1fr);column-gap:14px;align-items:baseline}
+.rot{font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.turn p{margin:0;font-family:var(--f-speech);font-size:1.24rem;line-height:1.48}
+.turn.voce p{font-style:italic;color:var(--sky)}
+.turn.narr p{font-style:italic;color:var(--muted);font-size:1.08rem}
+.fx,.nota{margin:-6px 0 0 calc(3.4rem + 14px);font-size:.8rem;color:var(--muted)}
+.fx .bom{color:var(--brass)} .fx .ruim,.nota{color:var(--rug-ink)} .fx .eu{color:var(--sky)}
+.nota{margin-top:-4px}
+.op.on{color:var(--brass);padding-bottom:3px;
+  background:linear-gradient(var(--brass),var(--brass)) 0 100% / calc(var(--w,1)*100%) 2px no-repeat}
+.op.usada{color:var(--brass)}
+.op.passou{text-decoration:underline dotted var(--brass-dim);text-underline-offset:4px}
+.revela .op.oculta{text-decoration:underline wavy var(--rug-ink);text-underline-offset:4px}
+
+/* fim */
+#fim{margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
+#fim h2{font-family:var(--f-display);font-weight:400;font-size:1.9rem;margin:0 0 8px}
+.veredito{font-family:var(--f-speech);font-size:1.2rem;line-height:1.45;margin:0 0 18px;max-width:36rem}
+.placar{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 22px}
+.placar div{background:var(--panel);border-radius:12px;padding:10px 14px}
+.placar dt{font-size:.76rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.placar dd{margin:2px 0 0;font-family:var(--f-display);font-size:1.7rem;font-variant-numeric:tabular-nums}
+.placar small{display:block;font-family:var(--f-ui);font-size:.78rem;color:var(--muted)}
+#fim h3{font-size:.76rem;letter-spacing:.09em;text-transform:uppercase;color:var(--brass);margin:0 0 10px;font-weight:600}
+.momentos{list-style:none;margin:0 0 18px;padding:0;display:grid;gap:10px}
+.momentos q{font-family:var(--f-speech);font-size:1.08rem;quotes:"“" "”"}
+.momentos .meta{display:block;font-size:.82rem;color:var(--muted)}
+.momentos .meta .bom{color:var(--brass)} .momentos .meta .ruim{color:var(--rug-ink)}
+details{margin:0 0 22px;max-width:38rem}
+summary{cursor:pointer;color:var(--muted);font-size:.9rem}
+details ul{margin:10px 0 0;padding-left:18px;display:grid;gap:6px;color:var(--muted);font-size:.88rem}
+details ul b{color:var(--ink);font-weight:600}
+
+/* intervenções */
+.actions{grid-area:actions;display:grid;gap:8px;align-content:start}
+.timer{height:3px;background:var(--panel-hi);border-radius:2px;overflow:hidden}
+.timer i{display:block;height:100%;width:0;background:var(--muted)}
+.actions.aberta .timer i{background:var(--brass)}
+#status{margin:0;font-size:.84rem;color:var(--muted);min-height:1.2em}
+.actions.aberta #status{color:var(--brass)}
+.grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.grade button{position:relative;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;align-items:baseline;min-width:0}
+.grade .nome{font-weight:600;font-size:.98rem;overflow-wrap:anywhere}
+.grade .custo{font-variant-numeric:tabular-nums;color:var(--sky);font-weight:600}
+.grade .desc{grid-column:1/-1;font-size:.78rem;color:var(--muted)}
+.grade kbd{display:none}
+.grade button:not(:disabled):hover{background:var(--panel-hi)}
+.grade button:disabled{opacity:.42;cursor:default}
+.actions.aberta .grade button:not(:disabled){border-color:var(--brass)}
+@media (hover:hover) and (min-width:900px){
+  .grade kbd{display:block;position:absolute;right:10px;bottom:9px;font:500 .7rem var(--f-ui);color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 5px}
+  .grade .desc{padding-right:26px}
+}
+@media (max-width:899px){
+  body.ocioso .actions{display:none}
+}
+@media (max-width:520px){
+  .head{gap:10px}
+  .marca{font-size:1.05rem}
+  .relogio{font-size:.82rem;gap:6px}
+  .mini{padding:4px 11px;font-size:.8rem}
+  .freud .sub{display:none}
+  .legenda,.grade .desc{display:none}
+  .turn p{font-size:1.12rem}
+  .turn{grid-template-columns:2.8rem minmax(0,1fr);column-gap:10px}
+  .fx,.nota{margin-left:calc(2.8rem + 10px)}
+  .ajuste legend{min-width:100%}
+  .av{width:44px;height:44px}
+  .card{padding:9px 12px}
+}
+@media (min-width:900px){
+  body{grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:auto auto minmax(0,1fr);
+    grid-template-areas:"head head" "stage meters" "stage actions";
+    column-gap:36px;row-gap:14px;padding-inline:32px;padding-block:18px 20px;max-width:1160px;margin-inline:auto}
+  .marca{font-size:1.5rem}
+  .col{padding-top:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  .bar i,.ring-fg{transition:none}
+  .delta.pisca{animation:none;opacity:1}
+}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="marca">Sessão do Freudinho</div>
+  <div class="relogio">
+    <svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle class="ring-bg" cx="18" cy="18" r="15"></circle><circle class="ring-fg" id="ring" cx="18" cy="18" r="15"></circle></svg>
+    <span id="relogio">min 0 de 50</span>
+  </div>
+  <button class="mini" id="pausa" type="button" hidden>Pausar</button>
+</header>
+
+<section class="meters" aria-label="Estado da sessão">
+  <div class="card freud">
+    <svg class="av" id="av" data-s="ok" viewBox="0 0 80 80" role="img" aria-label="Freudinho">
+      <path class="hair" d="M20 30 Q13 21 24 15 M60 30 Q67 21 56 15"></path>
+      <circle class="head-c" cx="40" cy="33" r="21"></circle>
+      <path class="beard" d="M20 38 Q22 64 40 71 Q58 64 60 38 Q50 49 40 46 Q30 49 20 38Z"></path>
+      <path class="mouth" d="M35 56 Q40 58.5 45 56"></path>
+      <circle class="lens" cx="31" cy="32" r="6.5"></circle><circle class="lens" cx="49" cy="32" r="6.5"></circle><path class="lens" d="M37.5 32h5"></path>
+      <g class="e-ok"><circle class="eye" cx="31" cy="32" r="1.9"></circle><circle class="eye" cx="49" cy="32" r="1.9"></circle></g>
+      <g class="e-tired"><path class="lid" d="M26.5 30.5h9M44.5 30.5h9"></path><circle class="eye" cx="31" cy="33.6" r="1.5"></circle><circle class="eye" cx="49" cy="33.6" r="1.5"></circle></g>
+      <g class="e-out"><path class="lid" d="M27.5 33.2h7M45.5 33.2h7"></path></g>
+    </svg>
+    <div class="quem">
+      <div class="linha"><strong>Freudinho</strong><span class="pill" id="estado">presente</span><span class="sub">questão em aberto: cobrança paterna</span></div>
+      <div class="medidor" id="m-sm">
+        <div class="mrot"><span>Saúde mental</span><span class="val"><b class="delta"></b><span class="num">80</span></span></div>
+        <div class="trilho"><div class="bar"><i></i></div><span class="escuta"></span></div>
+        <div class="legenda">Abaixo da marca (45) ele perde a escuta fina.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card pac">
+    <div class="linha"><strong>Marcos, 38</strong><span class="sub">contador · 3ª sessão</span></div>
+    <div class="duo">
+      <div class="medidor" id="m-el">
+        <div class="mrot"><span>Elaboração</span><span class="val"><b class="delta"></b><span class="num">0</span></span></div>
+        <div class="bar"><i></i></div>
+      </div>
+      <div class="medidor" id="m-re">
+        <div class="mrot"><span>Resistência</span><span class="val"><b class="delta"></b><span class="num">0</span></span></div>
+        <div class="bar"><i></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="stage" id="stage">
+  <div class="col">
+    <div id="intro">
+      <p class="eyebrow">Protótipo de uma sessão</p>
+      <h1>Terceira sessão com Marcos</h1>
+      <p class="ficha">Marcos, 38 anos, contador. Procurou análise por insônia e porque, nas palavras dele, “não consegue dizer não”.</p>
+      <ul class="regras">
+        <li><span>Marcos fala e você escuta. <b>Nas pausas</b> você pode usar uma das quatro intervenções.</span></li>
+        <li><span>Quando um trecho da fala acende, há uma <b>oportunidade</b>. O sublinhado encolhe enquanto ela dura.</span></li>
+        <li><span><b>Toda intervenção gasta saúde mental.</b> Deixar passar não custa nada.</span></li>
+        <li><span>Na oportunidade, a intervenção que cabe faz Marcos elaborar. A que não cabe gera resistência, e <b>interpretar cedo demais</b> é o jeito mais comum de errar.</span></li>
+        <li><span>Abaixo de 45 de saúde mental o Freudinho deixa de perceber as <b>oportunidades sutis</b>.</span></li>
+        <li><span>O <b>corte</b> encerra a sessão ali mesmo.</span></li>
+      </ul>
+      <div class="ajustes">
+        <fieldset class="ajuste">
+          <legend>Como o Freudinho chega</legend>
+          <div class="seg">
+            <input type="radio" name="sm" id="sm-80" value="80" checked><label for="sm-80">Descansado · 80</label>
+            <input type="radio" name="sm" id="sm-50" value="50"><label for="sm-50">Fim de dia · 50</label>
+          </div>
+        </fieldset>
+        <fieldset class="ajuste">
+          <legend>Ritmo da sessão</legend>
+          <div class="seg">
+            <input type="radio" name="ritmo" id="r-calmo" value="1.5"><label for="r-calmo">Calmo</label>
+            <input type="radio" name="ritmo" id="r-normal" value="1" checked><label for="r-normal">Normal</label>
+            <input type="radio" name="ritmo" id="r-corrido" value="0.65"><label for="r-corrido">Corrido</label>
+          </div>
+        </fieldset>
+      </div>
+      <button class="go" id="comecar" type="button">Começar a sessão</button>
+    </div>
+    <div id="log" aria-live="polite"></div>
+    <div id="fim" hidden></div>
+  </div>
+</main>
+
+<section class="actions" id="acoes" aria-label="Intervenções">
+  <div class="timer"><i id="timer"></i></div>
+  <p id="status">A sessão ainda não começou.</p>
+  <div class="grade">
+    <button type="button" id="b-sil" data-k="sil" disabled><span class="nome">Silêncio</span><span class="custo">−4</span><span class="desc">sustenta e espera</span><kbd>1</kbd></button>
+    <button type="button" id="b-pon" data-k="pon" disabled><span class="nome">Pontuação</span><span class="custo">−7</span><span class="desc">devolve uma palavra</span><kbd>2</kbd></button>
+    <button type="button" id="b-int" data-k="int" disabled><span class="nome">Interpretação</span><span class="custo">−15</span><span class="desc">nomeia o que se repete</span><kbd>3</kbd></button>
+    <button type="button" id="b-cor" data-k="cor" disabled><span class="nome">Corte</span><span class="custo">−10</span><span class="desc">encerra a sessão</span><kbd>4</kbd></button>
+  </div>
+</section>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const ESCUTA = 45, N_MIN = 50, CPS = 46, JANELA = 6.5;
+const COST = {sil:4, pon:7, int:15, cor:10};
+const NOME = {sil:'Silêncio', pon:'Pontuação', int:'Interpretação', cor:'Corte'};
+const GANHO = {sil:{certa:7, ok:3}, pon:{certa:9, ok:4}, int:{certa:15}, cor:{certa:15, ok:6}};
+const ROT = {certa:'no ponto', ok:'ajudou um pouco', cedo:'cedo demais', errada:'fora de hora', fora:'sem oportunidade'};
+const CORTE_F = 'Ficamos por aqui hoje.';
+const CORTE_ERR = 'Marcos olha o relógio, confuso. “Já? Mas… tá bom.” Sai contrariado.';
+const FORA = {
+  sil:{r:'O silêncio se alonga. Marcos se ajeita e segue de onde parou.', narr:true},
+  pon:{f:'Hm.', r:'…é. Enfim.'},
+  int:{f:'Tem algo aí que se repete.', r:'Pode ser. Não foi bem isso que eu quis dizer.'},
+  cor:{f:CORTE_F, r:CORTE_ERR, narr:true}
+};
+
+const BEATS = [
+ {t:'Desculpa o atraso. O trânsito… na verdade eu saí tarde. Fiquei terminando uma planilha que nem era pra hoje.',
+  op:{frase:'que nem era pra hoje', tipo:'obvia', need:99,
+   sil:{q:'ok', r:'…é. Eu sei que não precisava. Mas se eu não faço, quem faz?'},
+   pon:{q:'certa', f:'Nem era pra hoje.', r:'Não era. Ninguém pediu. Eu é que sempre acho que vão pedir.'},
+   int:{f:'Você se atrasa para o que é seu cuidando do que é dos outros.', cedo:'Não, foi o trânsito mesmo. Enfim.'},
+   cor:{q:'errada', r:'Marcos mal tinha sentado. “Como assim? Eu acabei de chegar.” Sai contrariado.'}}},
+ {t:'Dormi mal de novo. Três, quatro horas. Fico repassando o dia, as conversas, o que eu devia ter dito.'},
+ {t:'Meu chefe pediu pra eu cobrir um colega no feriado. Eu disse sim na hora. Depois fiquei com raiva. Mas tanto faz, alguém tinha que ir.',
+  op:{frase:'Depois fiquei com raiva.', tipo:'obvia', need:99,
+   sil:{q:'certa', r:'…raiva de mim, eu acho. Eu nem pensei. A boca disse sim antes de mim.'},
+   pon:{q:'ok', f:'Raiva.', r:'É… raiva é forte. Um incômodo, vai.'},
+   int:{f:'Essa raiva é mais antiga que o seu chefe.', cedo:'Não entendi. Ele só é folgado, é isso.'},
+   cor:{q:'errada', r:CORTE_ERR}}},
+ {t:'Minha esposa diz que eu sou bonzinho demais. Ela fala rindo, mas não é elogio.'},
+ {t:'No aniversário do meu filho eu também fiquei até tarde no escritório. Quando cheguei ele já tava dormindo. Mas tanto faz, ele nem deve lembrar.',
+  op:{frase:'Mas tanto faz', tipo:'sutil', need:15, dica:'Repetição: é a segunda vez que ele diz “tanto faz”.',
+   sil:{q:'ok', r:'…não, ele lembra sim. Ele perguntou por mim.'},
+   pon:{q:'certa', f:'Tanto faz. É a segunda vez hoje.', r:'É? …Meu pai falava isso. “Tanto faz, Marcos.” Pra tudo que eu mostrava.'},
+   int:{f:'Você diz “tanto faz” justamente onde mais importa.', ok:'…(pausa longa) É. É onde dói.', cedo:'Não, é só modo de falar.'},
+   cor:{q:'errada', r:CORTE_ERR}}},
+ {t:'Meu pai era assim. Eu chegava com o boletim, nove e meio, e ele perguntava pelo meio ponto que faltou.', toca:true,
+  op:{frase:'pelo meio ponto que faltou', tipo:'obvia', need:20,
+   sil:{q:'certa', r:'…eu nunca contei isso pra ninguém. Parece bobo. Mas eu ainda escuto a voz dele quando entrego um relatório.'},
+   pon:{q:'ok', f:'O meio ponto.', r:'O meio ponto. Sempre. Na época eu até ria.'},
+   int:{f:'Você ainda tenta entregar o meio ponto que faltou.', ok:'…(os olhos enchem) É isso. Pra ele, pro chefe, pra todo mundo.', cedo:'Acho que você tá exagerando. Era só o jeito dele.'},
+   cor:{q:'errada', r:CORTE_ERR}}},
+ {t:'Não que ele fosse ruim. Trabalhava muito, nunca faltou nada em casa. Eu não tenho do que reclamar.'},
+ {t:'Ontem eu entreguei o fechamento e fiquei esperando meu pai dizer alguma coisa. Meu chefe, quer dizer. Ele falou “ok” e virou pro computador.',
+  op:{frase:'esperando meu pai dizer alguma coisa', tipo:'sutil', need:25, dica:'Ato falho: ele disse “meu pai” no lugar de “meu chefe”.',
+   sil:{q:'ok', r:'…eu falei pai, né? Deixa pra lá.'},
+   pon:{q:'certa', f:'Seu pai.', r:'Eu falei pai? …Falei. (ri sem graça) Faz sentido. É a mesma espera.'},
+   int:{f:'Você espera do seu chefe a palavra que não veio do seu pai.', ok:'…Eu tenho trinta e oito anos e ainda tô esperando um parabéns.', cedo:'Foi só um engano. Eu tô cansado, troco as palavras.'},
+   cor:{q:'ok', r:'Marcos para na porta. “Pai. Eu falei pai.” Sai repetindo baixinho.'}}},
+ {t:'Às vezes eu fico pensando se isso aqui adianta. Nada contra você. É que eu venho, falo, e lá fora continua tudo igual.',
+  op:{frase:'se isso aqui adianta', tipo:'obvia', need:30,
+   sil:{q:'certa', r:'…acho que eu tô esperando você dizer que eu tô indo bem. (pausa) Olha aí. De novo.'},
+   pon:{q:'ok', f:'Continua tudo igual.', r:'É. Ou sou eu que continuo igual.'},
+   int:{f:'Talvez você também espere de mim uma nota.', ok:'(ri) Nove e meio? …É. Eu saio daqui querendo saber se fui um bom paciente.', cedo:'Não é isso. Eu só tô sendo prático.'},
+   cor:{q:'errada', r:'Marcos fica vermelho. “Eu falei alguma coisa errada?” Sai sem olhar pra trás.'}}},
+ {t:'Semana passada eu quase não vim. Tinha uma reunião na mesma hora. No fim eu desmarquei foi o dentista, e vim.'},
+ {t:'Sonhei que tava numa prova e a caneta não escrevia. Todo mundo já tinha entregado. O professor olhava o relógio. Besteira, sonho é sonho.',
+  op:{frase:'O professor olhava o relógio.', tipo:'sutil', need:35, dica:'O sonho repete a cena da cobrança: alguém que olha e não diz nada.',
+   sil:{q:'ok', r:'…a caneta era a do meu pai, aliás. Ficava no bolso da camisa dele.'},
+   pon:{q:'certa', f:'O professor olhava o relógio.', r:'Olhava. Não dizia nada, só olhava. Igual… você já sabe igual a quem.'},
+   int:{f:'No sonho você não consegue entregar. Acordado, não consegue parar de entregar.', ok:'…(pausa longa) Nunca pensei que fosse a mesma coisa.', cedo:'Sei lá. Deve ser o estresse do fechamento.'},
+   cor:{q:'errada', r:CORTE_ERR}}},
+ {t:'Engraçado. Meu filho me mostrou um desenho ontem. Eu olhei e falei: legal, mas e o céu, não vai pintar?',
+  op:{frase:'e o céu, não vai pintar?', tipo:'obvia', need:35,
+   sil:{q:'certa', r:'…(a voz falha) Eu fiz igualzinho. O meio ponto. Eu fiz com ele.'},
+   pon:{q:'ok', f:'E o céu.', r:'E o céu… ele ficou olhando pro papel. Guardou o desenho na mochila.'},
+   int:{f:'Você perguntou a ele pelo meio ponto que faltou.', ok:'…(chora em silêncio) Eu não quero ser isso pra ele.', cedo:'Não, eu só queria que ele caprichasse.'},
+   cor:{q:'ok', r:'Marcos levanta devagar. “O céu.” Fica um instante na porta antes de sair.'}}},
+ {t:'Eu queria ter falado só “que lindo”. Só isso. Por que é tão difícil falar só isso?',
+  op:{frase:'Por que é tão difícil falar só isso?', tipo:'obvia', need:40,
+   sil:{q:'ok', r:'…porque ninguém falou pra mim, eu acho.'},
+   pon:{q:'ok', f:'Só isso.', r:'Só isso. Parece tão pouco.'},
+   int:{f:'É difícil dar o que você ainda espera receber.', ok:'…É. Eu devo pra ele o que me devem.', cedo:'Acho que é falta de costume.'},
+   cor:{q:'certa', r:'Marcos fica um instante parado. “…Tá.” Levanta devagar e sai levando a pergunta.'}}},
+ {t:'Bom. Acho que falei demais hoje. Nem sei mais onde eu tava.'},
+ {t:'Semana que vem tem fechamento de novo. Mas eu venho. A planilha espera.', se:45, senao:'Semana que vem tem fechamento. Eu vejo se consigo vir.'}
+];
+BEATS.forEach((b,i) => { if (b.op && b.t.indexOf(b.op.frase) < 0) console.warn('frase fora da fala', i); });
+
+const reduz = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const el = {stage:$('#stage'), intro:$('#intro'), log:$('#log'), fim:$('#fim'), acoes:$('#acoes'), status:$('#status'),
+  timer:$('#timer'), pausa:$('#pausa'), relogio:$('#relogio'), ring:$('#ring'), av:$('#av'), estado:$('#estado')};
+const cfg = {sm:80, ritmo:1};
+let S;
+
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const minuto = i => Math.round(i * N_MIN / BEATS.length);
+const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+function novo(){
+  S = {phase:'idle', i:-1, sm:cfg.sm, sm0:cfg.sm, elab:0, res:0, chars:0, full:0, timer:0, win:1,
+       usado:false, percebida:false, paused:false, cut:false, hist:[], fora:0, seg:null, minFim:0};
+}
+
+function rolar(){ el.stage.scrollTop = el.stage.scrollHeight; }
+function linha(cls, rot, txt){
+  const d = document.createElement('div'); d.className = 'turn ' + cls;
+  const l = document.createElement('span'); l.className = 'rot'; l.textContent = rot;
+  const p = document.createElement('p'); p.textContent = txt;
+  d.append(l, p); el.log.append(d); rolar(); return p;
+}
+function nota(txt){ const p = document.createElement('p'); p.className = 'nota'; p.textContent = txt; el.log.append(p); rolar(); }
+
+function setBar(id, v){
+  const m = $('#m-' + id), num = m.querySelector('.num'), old = parseFloat(num.dataset.v);
+  if (old === v) return;
+  if (!isNaN(old) && S.phase !== 'idle'){
+    const d = m.querySelector('.delta'), diff = v - old;
+    d.textContent = (diff > 0 ? '+' : '−') + Math.abs(diff);
+    d.classList.remove('pisca'); void d.offsetWidth; d.classList.add('pisca');
+  }
+  num.dataset.v = v; num.textContent = v; m.querySelector('i').style.width = v + '%';
+}
+
+function ui(){
+  const b = S.i >= 0 && S.i < BEATS.length ? BEATS[S.i] : null;
+  setBar('sm', S.sm); setBar('el', S.elab); setBar('re', S.res);
+  el.av.dataset.s = S.sm >= ESCUTA ? 'ok' : S.sm >= 20 ? 'cansado' : 'esgotado';
+  el.estado.textContent = S.sm >= ESCUTA ? 'presente' : S.sm >= 20 ? 'cansado' : S.sm > 0 ? 'esgotado' : 'no automático';
+  const min = S.phase === 'idle' ? 0 : S.phase === 'ended' ? S.minFim : minuto(S.i);
+  el.relogio.textContent = 'min ' + min + ' de ' + N_MIN;
+  el.ring.style.strokeDashoffset = (94.25 * (1 - min / N_MIN)).toFixed(2);
+  const janela = S.phase === 'window' && !S.usado && !S.paused;
+  const mult = b && b.toca ? 1.5 : 1;
+  for (const k in COST){
+    const btn = $('#b-' + k), c = Math.round(COST[k] * mult);
+    btn.querySelector('.custo').textContent = '−' + c;
+    btn.disabled = !janela || S.sm < c;
+  }
+  const aberta = janela && b && b.op && S.percebida;
+  el.acoes.classList.toggle('aberta', !!aberta);
+  let st;
+  if (S.phase === 'idle') st = 'A sessão ainda não começou.';
+  else if (S.phase === 'ended') st = 'Sessão encerrada.';
+  else if (S.paused) st = 'Em pausa.';
+  else if (S.phase === 'typing') st = 'Marcos está falando.';
+  else if (S.phase === 'resp') st = S.cut ? 'Você encerra a sessão.' : 'Marcos responde.';
+  else if (S.sm < COST.sil) st = 'Freudinho esgotado. A sessão segue no automático.';
+  else if (aberta) st = 'Oportunidade aberta' + (b.op.tipo === 'sutil' ? ' · sutil' : '') + (b.toca ? ' · custa 50% a mais' : '');
+  else st = 'Pausa. Dá para intervir, mas sem oportunidade o efeito é pequeno.';
+  el.status.textContent = st;
+  document.body.classList.toggle('ocioso', S.phase === 'idle');
+  el.pausa.hidden = S.phase === 'idle' || S.phase === 'ended';
+  el.pausa.textContent = S.paused ? 'Continuar' : 'Pausar';
+  if (S.phase !== 'window') el.timer.style.width = '0%';
+}
+
+function proxima(){
+  S.i++;
+  if (S.i >= BEATS.length){ fim(); return; }
+  const b = BEATS[S.i];
+  S.usado = false; S.percebida = false;
+  S.sm = Math.max(0, S.sm - 1); S.res = Math.max(0, S.res - 1);
+  let txt = b.t; if (b.se != null && S.elab < b.se) txt = b.senao;
+  const p = linha('pac', 'min ' + minuto(S.i), '');
+  const pre = document.createElement('span'), op = document.createElement('span'), post = document.createElement('span');
+  op.className = 'op'; p.append(pre, op, post);
+  let a = txt, o = '', z = '';
+  if (b.op){ const k = txt.indexOf(b.op.frase); a = txt.slice(0, k); o = b.op.frase; z = txt.slice(k + o.length); }
+  S.seg = {a, o, z, pre, op, post}; S.full = txt.length; S.chars = reduz ? S.full : 0;
+  S.phase = 'typing'; ui();
+}
+function digita(){
+  const n = Math.floor(S.chars), g = S.seg;
+  g.pre.textContent = g.a.slice(0, n);
+  g.op.textContent = g.o.slice(0, Math.max(0, n - g.a.length));
+  g.post.textContent = g.z.slice(0, Math.max(0, n - g.a.length - g.o.length));
+}
+function abrirJanela(){
+  const b = BEATS[S.i]; S.chars = S.full; digita();
+  if (b.toca){ S.sm = Math.max(0, S.sm - 5); nota('Isso toca numa questão sua. −5 de saúde mental, e intervir neste momento custa 50% a mais.'); }
+  if (b.op){
+    S.percebida = b.op.tipo === 'obvia' || S.sm >= ESCUTA;
+    S.seg.op.classList.add(S.percebida ? 'on' : 'oculta');
+    S.win = JANELA * cfg.ritmo;
+  } else S.win = clamp(S.full * 0.03 + 1.6, 2.4, 4.5) * cfg.ritmo;
+  S.timer = S.win; S.phase = 'window'; ui(); rolar();
+}
+function fecharJanela(){
+  const b = BEATS[S.i];
+  if (b.op){
+    S.hist.push({i:S.i, op:b.op, k:null, percebida:S.percebida});
+    S.seg.op.classList.remove('on');
+    if (S.percebida) S.seg.op.classList.add('passou');
+  }
+  proxima();
+}
+
+function agir(k){
+  if (!S || S.phase !== 'window' || S.usado || S.paused) return;
+  const b = BEATS[S.i], op = b.op, custo = Math.round(COST[k] * (b.toca ? 1.5 : 1));
+  if (S.sm < custo) return;
+  S.usado = true; S.sm -= custo;
+  let q, fala, resp, narr = false, dE = 0, dR = 0;
+  if (op){
+    if (k === 'int'){ fala = op.int.f; if (S.elab >= op.need){ q = 'certa'; resp = op.int.ok; } else { q = 'cedo'; resp = op.int.cedo; } }
+    else { q = op[k].q; fala = k === 'cor' ? CORTE_F : op[k].f; resp = op[k].r; narr = k === 'cor'; }
+  } else { q = 'fora'; fala = FORA[k].f; resp = FORA[k].r; narr = !!FORA[k].narr; S.fora++; }
+  const freio = Math.max(0.3, 1 - S.res / 100);
+  if (q === 'certa'){ dE = Math.max(1, Math.round(GANHO[k].certa * freio)); dR = -Math.min(5, S.res); }
+  else if (q === 'ok') dE = Math.max(1, Math.round(GANHO[k].ok * freio));
+  else if (q === 'cedo') dR = 14;
+  else if (q === 'errada') dR = 20;
+  else { if (k === 'sil') dE = 1; else if (k === 'pon') dE = 2; else if (k === 'int') dR = 8; else dR = 20; }
+  S.elab = clamp(S.elab + dE, 0, 100); S.res = clamp(S.res + dR, 0, 100);
+  if (k === 'cor') S.cut = true;
+  if (op){
+    S.hist.push({i:S.i, op, k, q, percebida:S.percebida});
+    S.seg.op.classList.remove('on', 'oculta'); S.seg.op.classList.add('usada');
+  }
+  if (k === 'sil') linha('narr', 'você', 'Você sustenta o silêncio.'); else linha('voce', 'você', '“' + fala + '”');
+  linha(narr ? 'narr' : 'pac', '', resp);
+  const fx = document.createElement('p'); fx.className = 'fx';
+  let h = esc(NOME[k]) + ' · <span class="' + (q === 'certa' || q === 'ok' ? 'bom' : q === 'fora' ? '' : 'ruim') + '">' + ROT[q] + '</span>'
+        + ' · <span class="eu">−' + custo + ' saúde mental</span>';
+  if (dE) h += ' · <span class="bom">+' + dE + ' elaboração</span>';
+  if (dR > 0) h += ' · <span class="ruim">+' + dR + ' resistência</span>';
+  if (dR < 0) h += ' · −' + (-dR) + ' resistência';
+  if (op && !S.percebida && (q === 'certa' || q === 'ok')) h += ' · você escutou sem o indicador';
+  fx.innerHTML = h; el.log.append(fx);
+  S.timer = clamp(((fala || '').length + resp.length) * 0.045 + 2, 3, 7) * cfg.ritmo;
+  S.phase = 'resp'; ui(); rolar();
+}
+
+function fim(){
+  S.phase = 'ended';
+  S.minFim = S.cut ? minuto(S.i) : N_MIN;
+  const sentido = Math.round(S.elab * 0.1), antes = S.sm;
+  S.sm = Math.min(100, S.sm + sentido);
+  el.log.classList.add('revela');
+  let v = S.elab >= 60 ? 'Marcos saiu com algo novo. Sessões assim devolvem sentido.'
+        : S.elab >= 30 ? 'A sessão andou. Marcos tocou em coisas que ainda não tinha dito.'
+        : 'Sessão morna. Marcos falou bastante e pouco se moveu.';
+  v += S.sm < 20 ? ' Você termina esgotado, e o próximo paciente do dia pagaria por isso.'
+     : S.sm >= 50 ? ' E você ainda tem fôlego para o próximo.' : ' Você sai cansado, mas inteiro.';
+  if (S.res >= 30) v += ' A resistência que ficou vai abrir a próxima sessão.';
+  const mom = S.hist.map(h => {
+    let m;
+    if (h.k) m = NOME[h.k] + ' · <span class="' + (h.q === 'certa' || h.q === 'ok' ? 'bom' : 'ruim') + '">' + ROT[h.q] + '</span>' + (h.percebida ? '' : ' · sem o indicador');
+    else if (h.percebida) m = 'você deixou passar';
+    else m = '<span class="ruim">não percebida</span> · ' + esc(h.op.dica);
+    return '<li><q>' + esc(h.op.frase) + '</q><span class="meta">min ' + minuto(h.i) + ' · ' + (h.op.tipo === 'sutil' ? 'sutil' : 'óbvia') + ' · ' + m + '</span></li>';
+  }).join('');
+  const gab = BEATS.filter(b => b.op).map(b => {
+    const o = b.op, bom = ['sil','pon','cor'].filter(k => o[k].q === 'certa').map(k => NOME[k]).join(' ou ');
+    return '<li><b>“' + esc(o.frase) + '”</b>: cabia ' + bom.toLowerCase() + '. '
+      + (o.need >= 99 ? 'Interpretar aqui era cedo demais em qualquer caso.' : 'Interpretação funcionava a partir de ' + o.need + ' de elaboração.')
+      + (o.dica ? ' ' + esc(o.dica) : '') + '</li>';
+  }).join('');
+  el.fim.innerHTML =
+    '<h2>Fim da sessão</h2><p class="veredito">' + v + '</p>'
+    + '<dl class="placar">'
+    + '<div><dt>Saúde mental</dt><dd>' + S.sm0 + ' → ' + S.sm + '<small>terminou em ' + antes + ', +' + sentido + ' de sentido devolvido</small></dd></div>'
+    + '<div><dt>Elaboração</dt><dd>' + S.elab + '<small>de 100</small></dd></div>'
+    + '<div><dt>Resistência</dt><dd>' + S.res + '<small>fica para a próxima sessão</small></dd></div>'
+    + '<div><dt>Duração</dt><dd>' + S.minFim + ' min<small>' + (S.cut ? 'encerrada pelo corte' : 'sessão inteira') + '</small></dd></div>'
+    + '</dl>'
+    + (mom ? '<h3>Os momentos</h3><ul class="momentos">' + mom + '</ul>' : '')
+    + (S.fora ? '<p class="sub">Intervenções sem oportunidade: ' + S.fora + '.</p>' : '')
+    + '<details id="gabarito"><summary>Ver o que cabia em cada momento</summary><ul>' + gab + '</ul></details>'
+    + '<button class="go" id="denovo" type="button">Jogar de novo</button>';
+  el.fim.hidden = false;
+  $('#denovo').addEventListener('click', reiniciar);
+  ui(); rolar();
+}
+
+function comecar(){
+  cfg.sm = +document.querySelector('input[name="sm"]:checked').value;
+  cfg.ritmo = +document.querySelector('input[name="ritmo"]:checked').value;
+  novo(); el.intro.hidden = true; el.fim.hidden = true; el.fim.innerHTML = '';
+  el.log.innerHTML = ''; el.log.classList.remove('revela');
+  S.phase = 'typing'; S.i = -1; ui(); proxima();
+}
+function reiniciar(){
+  novo(); el.log.innerHTML = ''; el.log.classList.remove('revela');
+  el.fim.hidden = true; el.fim.innerHTML = ''; el.intro.hidden = false; el.stage.scrollTop = 0;
+  S.sm = cfg.sm; ui();
+}
+
+function tick(dt){
+  if (!S || S.paused) return;
+  if (S.phase === 'typing'){
+    S.chars += dt * CPS / cfg.ritmo; digita(); rolar();
+    if (S.chars >= S.full) abrirJanela();
+  } else if (S.phase === 'window'){
+    S.timer -= dt;
+    const w = clamp(S.timer / S.win, 0, 1);
+    S.seg.op.style.setProperty('--w', w.toFixed(3));
+    el.timer.style.width = (w * 100).toFixed(1) + '%';
+    if (S.timer <= 0) fecharJanela();
+  } else if (S.phase === 'resp'){
+    S.timer -= dt;
+    if (S.timer <= 0){ if (S.cut) fim(); else proxima(); }
+  }
+}
+
+document.querySelectorAll('.grade button').forEach(b => b.addEventListener('click', () => agir(b.dataset.k)));
+$('#comecar').addEventListener('click', comecar);
+el.pausa.addEventListener('click', () => { S.paused = !S.paused; ui(); });
+document.querySelectorAll('input[name="sm"]').forEach(r => r.addEventListener('change', () => {
+  if (S.phase === 'idle'){ cfg.sm = +r.value; S.sm = cfg.sm; S.sm0 = cfg.sm; ui(); }
+}));
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = {'1':'sil','2':'pon','3':'int','4':'cor'}[e.key];
+  if (k){ agir(k); return; }
+  if ((e.key === 'p' || e.key === 'P') && S.phase !== 'idle' && S.phase !== 'ended'){ S.paused = !S.paused; ui(); }
+});
+
+novo(); ui();
+let last = performance.now();
+setInterval(() => { const now = performance.now(), dt = Math.min(0.2, (now - last) / 1000); last = now; tick(dt); }, 40);
+})();
+</script>
+</body>
+</html>

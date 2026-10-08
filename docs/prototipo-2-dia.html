@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Dia do Freudinho</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+/* Layout: moldura escura de fliperama em volta de uma cena clara (o consultório).
+   Em cima fica o painel (barra de saúde mental, caixa, estrelas) e a agenda do dia;
+   no meio a cena com os dois balões; embaixo a dica e o botão de emergência. */
+:root{
+  color-scheme: dark;
+  --fundo:#241f38; --fundo-2:#322b4d; --linha:#51487a; --claro:#f4efff; --apagado:#b9afdc;
+  --tinta:#2b2540; --papel:#fffdf7; --sol:#ffc93c; --sofa:#2f9488; --chao:#c98f5e; --chao-2:#b57c4d; --terno:#3d3559;
+  --bem:#5fd39a; --cansado:#f5b83d; --limite:#f0705f; --perigo:#e5484d;
+  --parede:#cfe6f5; --ceu:#8fd0ff;
+  --f-tit:"Baloo 2","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  --f-txt:"DM Sans","Segoe UI",system-ui,sans-serif;
+}
+html{height:100%;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  height:100%;margin:0;background:var(--fundo);color:var(--claro);
+  font-family:var(--f-txt);font-size:15px;line-height:1.4;
+  display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto;
+  gap:10px;padding-inline:16px;padding-block:10px 12px;max-width:980px;margin-inline:auto;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--sol);outline-offset:3px}
+
+/* painel */
+.hud{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+.titulo{font-family:var(--f-tit);font-weight:800;font-size:1.35rem;line-height:1;margin-right:auto}
+.stat{font-family:var(--f-tit);font-weight:700;font-size:1.1rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stat small{font-family:var(--f-txt);font-weight:500;font-size:.72rem;color:var(--apagado);letter-spacing:.05em;text-transform:uppercase;margin-right:5px}
+.sm{flex:1 1 100%;display:grid;gap:4px;min-width:0}
+.sm-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.82rem;color:var(--apagado)}
+.sm-top b{font-family:var(--f-tit);font-weight:700;font-size:1.05rem;color:var(--claro);font-variant-numeric:tabular-nums}
+.sm-estado{text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;border:1px solid var(--linha);border-radius:99px;padding:1px 8px;margin-right:6px}
+.sm-bar{position:relative;height:16px;background:var(--fundo-2);border-radius:99px;overflow:hidden}
+.sm-bar i{display:block;height:100%;width:80%;border-radius:99px;background:var(--bem)}
+.sm[data-n="cansado"] .sm-bar i{background:var(--cansado)}
+.sm[data-n="limite"] .sm-bar i{background:var(--limite)}
+.sm-bar span{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--claro);opacity:.55}
+
+/* agenda */
+.agenda{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.chip{background:var(--fundo-2);border:2px solid transparent;border-radius:12px;padding:6px 8px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 8px;align-items:center;min-width:0}
+.chip .av{font-size:1.5rem;line-height:1;grid-row:span 2}
+.chip .h{font-family:var(--f-tit);font-weight:700;font-size:.82rem;color:var(--apagado);font-variant-numeric:tabular-nums}
+.chip .n{font-weight:700;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip .peso{grid-column:1/-1;font-size:.72rem;color:var(--apagado);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip .res{grid-column:1/-1;font-size:.82rem;font-family:var(--f-tit);font-weight:700;min-height:1.2em}
+.chip.atual{border-color:var(--sol)}
+.chip.feito{opacity:.72}
+
+/* palco */
+.palco{position:relative;background:var(--parede);color:var(--tinta);border-radius:22px;overflow:auto;min-height:0;transition:background-color 1.2s}
+.palco>section{min-height:100%}
+.miolo{padding:22px 20px 24px;max-width:40rem;margin-inline:auto}
+.palco h1,.palco h2{font-family:var(--f-tit);font-weight:800;line-height:1.05;margin:0 0 8px;text-wrap:balance}
+.palco h1{font-size:clamp(1.8rem,6vw,2.5rem)}
+.palco h2{font-size:clamp(1.5rem,5vw,2rem)}
+.lead{font-size:1.05rem;margin:0 0 16px;max-width:34rem}
+.regras{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:10px;max-width:34rem}
+.regras li{display:grid;grid-template-columns:2rem minmax(0,1fr);gap:8px;align-items:start}
+.regras li>span:first-child{font-size:1.4rem;line-height:1.1}
+.botao{font-family:var(--f-tit);font-weight:800;font-size:1.15rem;background:var(--tinta);color:var(--papel);border:0;border-radius:16px;padding:11px 24px;box-shadow:0 4px 0 rgba(43,37,64,.35)}
+.botao:hover{transform:translateY(-1px)}
+#abrir{position:sticky;bottom:12px}
+.botao:active{transform:translateY(2px);box-shadow:none}
+
+/* cena */
+#cena{position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:340px;height:100%;overflow:hidden}
+.chao{position:absolute;left:0;right:0;bottom:0;height:27%;background:var(--chao);border-top:5px solid var(--chao-2)}
+.janela{position:absolute;top:18px;left:50%;width:92px;height:74px;margin-left:-46px;border:5px solid var(--tinta);border-radius:12px;background:var(--ceu);overflow:hidden;transition:background-color 1.2s}
+.janela::before,.janela::after{content:"";position:absolute;background:var(--tinta)}
+.janela::before{left:50%;top:0;bottom:0;width:4px;margin-left:-2px}
+.janela::after{top:50%;left:0;right:0;height:4px;margin-top:-2px}
+.astro{position:absolute;width:24px;height:24px;border-radius:50%;background:var(--sol);left:10%;top:50%;transition:left 1.2s,top 1.2s}
+.tempo{position:relative;z-index:1;height:8px;margin:14px 18px 0;background:rgba(43,37,64,.16);border-radius:99px;overflow:hidden}
+.tempo i{display:block;height:100%;width:0;background:var(--tinta);border-radius:99px}
+.dupla{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;gap:8px;padding:8px 12px 0}
+.lado{display:grid;justify-items:center;gap:10px;min-width:0}
+.placa{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px 12px 14px;text-align:center;color:var(--papel);font-size:.86rem}
+.placa b{font-family:var(--f-tit);font-weight:700;font-size:1rem;display:block}
+.placa .tag{opacity:.9}
+
+.balao{position:relative;width:min(132px,100%);aspect-ratio:1.18;display:grid;place-items:center;background:var(--papel);border:4px solid var(--tinta)}
+.balao .emo{font-size:3.1rem;line-height:1}
+.fala{border-radius:26px}
+.fala::after{content:"";position:absolute;bottom:-13px;left:58%;width:20px;height:20px;background:var(--papel);border-right:4px solid var(--tinta);border-bottom:4px solid var(--tinta);transform:rotate(45deg)}
+.pensa{border-radius:50%;padding:0}
+.pensa::before,.pensa::after{content:"";position:absolute;background:var(--papel);border:4px solid var(--tinta);border-radius:50%}
+.pensa::before{width:22px;height:22px;bottom:-16px;left:34%}
+.pensa::after{width:12px;height:12px;bottom:-30px;left:44%}
+.pensa .anel{position:absolute;inset:-12px;border-radius:50%;pointer-events:none;opacity:0;
+  background:conic-gradient(var(--sol) calc(var(--w,1)*360deg),transparent 0);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 6px));mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 6px))}
+.pensa .preco{position:absolute;left:50%;bottom:-48px;transform:translateX(-50%);white-space:nowrap;font-family:var(--f-tit);font-weight:800;font-size:.95rem;background:var(--tinta);color:var(--sol);border-radius:99px;padding:1px 11px;opacity:0}
+.pensa:not(.insight){cursor:default}
+.pensa.insight{background:var(--sol);animation:pulsa .5s ease-in-out infinite alternate}
+.pensa.insight::before,.pensa.insight::after{background:var(--sol)}
+.pensa.insight .anel,.pensa.insight .preco{opacity:1}
+.pensa.treme{animation:treme .3s}
+.emo.pop{animation:pop .28s ease-out}
+@keyframes pulsa{from{transform:scale(1)}to{transform:scale(1.09)}}
+@keyframes pop{from{transform:scale(.55)}to{transform:scale(1)}}
+@keyframes treme{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.fr{width:118px;height:auto;display:block;margin-top:34px}
+.fr .terno{fill:var(--terno)} .fr .gravata{fill:var(--perigo)}
+.fr .rosto,.fr .barba{fill:var(--papel);stroke:var(--tinta);stroke-width:3}
+.fr .cabelo{fill:none;stroke:var(--papel);stroke-width:6;stroke-linecap:round}
+.fr .boca{fill:none;stroke:var(--tinta);stroke-width:2.6;stroke-linecap:round}
+.fr .lente{fill:none;stroke:var(--tinta);stroke-width:2.8}
+.fr .olho{fill:var(--tinta)} .fr .palp{fill:none;stroke:var(--tinta);stroke-width:2.8;stroke-linecap:round}
+.fr[data-s="bem"] .o-cansado,.fr[data-s="bem"] .o-limite,
+.fr[data-s="cansado"] .o-ok,.fr[data-s="cansado"] .o-limite,
+.fr[data-s="limite"] .o-ok,.fr[data-s="limite"] .o-cansado{display:none}
+.pac-fig{display:grid;justify-items:center;margin-top:34px}
+.pac-av{font-size:4.6rem;line-height:1;margin-bottom:-14px;position:relative;z-index:1}
+.sofa{width:150px;max-width:100%;height:50px;background:var(--sofa);border:4px solid var(--tinta);border-radius:20px 20px 10px 10px}
+.aviso{position:absolute;z-index:3;left:50%;top:44%;transform:translate(-50%,-50%);width:min(88%,26rem);background:var(--papel);border:4px solid var(--tinta);border-radius:18px;padding:12px 16px;text-align:center;font-family:var(--f-tit);font-weight:700;font-size:1.1rem;line-height:1.25;box-shadow:0 5px 0 rgba(43,37,64,.3)}
+.aviso small{display:block;font-family:var(--f-txt);font-weight:500;font-size:.88rem;margin-top:2px}
+.flu{position:absolute;z-index:4;pointer-events:none;font-family:var(--f-tit);font-weight:800;font-size:1.5rem;color:var(--tinta);animation:sobe 1.1s ease-out forwards}
+@keyframes sobe{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-54px)}}
+
+/* intervalo */
+.ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:16px}
+.op{text-align:left;background:var(--papel);color:var(--tinta);border:4px solid var(--tinta);border-radius:18px;padding:12px 14px;display:grid;gap:4px;align-content:start;box-shadow:0 5px 0 rgba(43,37,64,.3);min-width:0}
+.op .e{font-size:2.1rem;line-height:1}
+.op .t{font-family:var(--f-tit);font-weight:700;font-size:1.08rem;line-height:1.15}
+.op .f{font-size:.9rem;font-weight:700}
+.op .x{font-size:.84rem}
+.op:not(:disabled):hover{transform:translateY(-2px)}
+.op:disabled{opacity:.45;cursor:default;box-shadow:none}
+.op.escolhida{opacity:1;background:var(--sol)}
+.mais{color:#17734a} .menos{color:#b0362c}
+
+/* fim */
+.placar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 16px}
+.placar div{background:var(--papel);border:3px solid var(--tinta);border-radius:16px;padding:8px 12px;min-width:0}
+.placar dt{font-size:.72rem;letter-spacing:.05em;text-transform:uppercase}
+.placar dd{margin:0;font-family:var(--f-tit);font-weight:800;font-size:1.6rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.lista{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:6px}
+.lista li{display:grid;grid-template-columns:2.6rem 2rem minmax(0,1fr) auto;gap:8px;align-items:center;background:rgba(255,253,247,.6);border-radius:12px;padding:6px 10px}
+.lista .h{font-family:var(--f-tit);font-weight:700;font-variant-numeric:tabular-nums}
+.lista .a{font-size:1.4rem;line-height:1}
+.lista .r{font-family:var(--f-tit);font-weight:700;white-space:nowrap}
+.nota{font-size:.9rem;margin:0 0 18px}
+
+/* rodapé */
+.rodape{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-height:40px}
+#dica{margin:0;flex:1 1 220px;min-width:0;color:var(--apagado);font-size:.92rem}
+#emergencia{font-family:var(--f-tit);font-weight:700;background:transparent;border:2px solid var(--perigo);color:var(--claro);border-radius:99px;padding:6px 16px}
+#emergencia:not(:disabled):hover{background:var(--perigo)}
+#emergencia:disabled{opacity:.45;cursor:default;border-color:var(--linha)}
+
+@media (max-width:560px){
+  .chip{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;padding:6px 3px}
+  .chip .av{grid-row:auto}
+  .chip .n{display:none}
+  .chip .peso{margin-top:0}
+  .janela{display:none}
+  .balao .emo{font-size:2.7rem}
+  .placar dd{font-size:1.3rem}
+  .miolo{padding:18px 16px 20px}
+  .ops{grid-template-columns:minmax(0,1fr);gap:10px}
+  .op{grid-template-columns:auto minmax(0,1fr);column-gap:12px;padding:9px 12px}
+  .op .e{grid-row:span 3;align-self:center}
+}
+@media (min-width:760px){
+  .sm{flex:1 1 260px;order:0}
+  .titulo{margin-right:8px}
+  body{padding-block:16px 16px;gap:12px}
+  .balao{width:156px}
+  .balao .emo{font-size:3.8rem}
+}
+@media (prefers-reduced-motion:reduce){
+  .pensa.insight,.emo.pop,.pensa.treme{animation:none}
+  .palco,.janela,.astro{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hud">
+  <div class="titulo">Dia do Freudinho</div>
+  <div class="sm" id="sm" data-n="bem">
+    <div class="sm-top"><span>Saúde mental</span><span><span class="sm-estado" id="sm-estado">bem</span><b id="sm-num">80</b></span></div>
+    <div class="sm-bar"><i id="sm-i"></i><span></span></div>
+  </div>
+  <div class="stat"><small>Agora</small><span id="hora">07h</span></div>
+  <div class="stat"><small>Caixa</small><span id="caixa">R$ 20</span></div>
+  <div class="stat"><small>Estrelas</small><span id="estrelas">⭐ 0</span></div>
+</header>
+
+<ol class="agenda" id="agenda" aria-label="Agenda do dia"></ol>
+
+<main class="palco" id="palco">
+  <section id="intro">
+    <div class="miolo">
+      <h1>Cinco pacientes, uma barra só</h1>
+      <p class="lead">Você é o Freudinho, recém-formado. Hoje a agenda está cheia e a sua saúde mental precisa durar até as 18h.</p>
+      <ul class="regras">
+        <li><span>👂</span><span>Escutar já cansa. Cada sessão dura uns 20 segundos e gasta a barra sozinha. <b>Paciente pesado gasta mais.</b></span></li>
+        <li><span>💡</span><span>Quando a fala do paciente muda para um sentimento, o Freudinho pode ter um <b>insight</b>. Toque no balão de pensamento para aproveitar: custa saúde mental e rende ⭐ para o paciente. Deixar passar não custa nada.</span></li>
+        <li><span>🍕</span><span>Abaixo da metade da barra ele começa a se distrair e <b>perde insights</b>.</span></li>
+        <li><span>☕</span><span>Entre uma sessão e outra você escolhe como usar o intervalo.</span></li>
+        <li><span>🚨</span><span>Uma vez por dia dá para inventar uma emergência e encerrar a sessão. O paciente sai irritado e não paga.</span></li>
+        <li><span>🫠</span><span>Se a barra zerar, o dia acaba ali.</span></li>
+      </ul>
+      <button class="botao" id="abrir" type="button">Abrir o consultório</button>
+    </div>
+  </section>
+
+  <section id="cena" hidden>
+    <div class="chao"></div>
+    <div class="janela" aria-hidden="true"><div class="astro" id="astro"></div></div>
+    <div class="tempo" aria-hidden="true"><i id="tempo"></i></div>
+    <div class="dupla">
+      <div class="lado">
+        <button class="balao pensa" id="pensa" type="button" aria-label="Balão de pensamento do Freudinho">
+          <span class="anel"></span><span class="emo" id="pensa-emo">🤔</span><span class="preco" id="preco"></span>
+        </button>
+        <svg class="fr" id="fr" data-s="bem" viewBox="0 0 120 150" role="img" aria-label="Freudinho">
+          <path class="terno" d="M18 150 Q18 106 60 100 Q102 106 102 150Z"></path>
+          <path class="gravata" d="M50 106 L60 112 L70 106 L70 120 L60 113 L50 120Z"></path>
+          <path class="cabelo" d="M30 42 Q22 28 36 21 M90 42 Q98 28 84 21"></path>
+          <circle class="rosto" cx="60" cy="50" r="30"></circle>
+          <path class="barba" d="M31 57 Q34 94 60 103 Q86 94 89 57 Q75 72 60 68 Q45 72 31 57Z"></path>
+          <path class="boca" d="M53 83 Q60 87 67 83"></path>
+          <circle class="lente" cx="47" cy="48" r="9.5"></circle><circle class="lente" cx="73" cy="48" r="9.5"></circle><path class="lente" d="M56.5 48h7"></path>
+          <g class="o-ok"><circle class="olho" cx="47" cy="48" r="2.8"></circle><circle class="olho" cx="73" cy="48" r="2.8"></circle></g>
+          <g class="o-cansado"><path class="palp" d="M40 45.5h14M66 45.5h14"></path><circle class="olho" cx="47" cy="50.5" r="2.2"></circle><circle class="olho" cx="73" cy="50.5" r="2.2"></circle></g>
+          <g class="o-limite"><path class="palp" d="M41.5 49.5h11M67.5 49.5h11"></path></g>
+        </svg>
+      </div>
+      <div class="lado">
+        <div class="balao fala" aria-live="off"><span class="emo" id="fala-emo">💬</span></div>
+        <div class="pac-fig"><div class="pac-av" id="pac-av">👵</div><div class="sofa"></div></div>
+      </div>
+    </div>
+    <div class="placa">
+      <div><b>Freudinho</b><span class="tag" id="eu-tag">escutando</span></div>
+      <div><b id="pac-nome">Paciente</b><span class="tag" id="pac-tag"></span></div>
+    </div>
+    <div class="aviso" id="aviso" hidden></div>
+  </section>
+
+  <section id="intervalo" hidden><div class="miolo" id="intervalo-miolo"></div></section>
+  <section id="fim" hidden><div class="miolo" id="fim-miolo"></div></section>
+</main>
+
+<footer class="rodape">
+  <p id="dica">A agenda de hoje está aí em cima. Os mais pesados vêm à tarde.</p>
+  <button id="emergencia" type="button" hidden>🚨 Inventar uma emergência</button>
+</footer>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const vel = () => window.__vel || 1;
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const HONORARIO = 120, SM0 = 80, RS0 = 20;
+const PESO = {1:'leve', 2:'médio', 3:'pesado'};
+
+const PAC = [
+ {h:'08h', av:'👵', nome:'Dona Lurdes', peso:1, desgaste:9,  custo:5, valor:1, nSent:3, tPapo:1.5,  tSent:2.4, papo:['🧶','🌼','📺','🐈','☕','🧺','⛪'], sent:['🥲','💔','😢']},
+ {h:'10h', av:'👨', nome:'Caio',        peso:2, desgaste:15, custo:5, valor:1, nSent:5, tPapo:1.05, tSent:1.7, papo:['📈','📧','⏰','💻','📱','🚗','☕'], sent:['😰','😬','😱']},
+ {h:'14h', av:'👴', nome:'Seu Armando', peso:3, desgaste:22, custo:9, valor:2, nSent:2, tPapo:1.9,  tSent:2.6, papo:['📰','⚽','🔧','🤐','🧱','🌧️'], sent:['😤','😞']},
+ {h:'16h', av:'👩', nome:'Bia',         peso:3, desgaste:18, custo:8, valor:2, nSent:4, tPapo:1.5,  tSent:2.3, toca:true, papo:['🎭','📸','👗','🍷','✈️','📱'], sent:['😢','👔','💔']},
+ {h:'18h', av:'👦', nome:'Téo',         peso:2, desgaste:13, custo:6, valor:1, nSent:4, tPapo:1.5,  tSent:2.3, papo:['🎮','🍕','🛹','🎧','📚','💤'], sent:['😔','😳','😠']}
+];
+const INTERVALOS = [
+ {hora:'09h', ops:['cafe','respirar','relatorio']},
+ {hora:'12h', ops:['almoco','analise','encaixe']},
+ {hora:'15h', ops:['cafe','caminhada','supervisao']},
+ {hora:'17h', ops:['cafe','respirar','relatorio']}
+];
+const OPS = {
+ cafe:{e:'☕', t:'Café com pão de queijo', sm:12, rs:-12},
+ respirar:{e:'🧘', t:'Três respirações na janela', sm:6, rs:0},
+ relatorio:{e:'📋', t:'Adiantar relatórios', sm:-6, rs:30},
+ almoco:{e:'🥗', t:'Almoçar com calma', sm:25, rs:-35},
+ analise:{e:'🛋️', t:'Ir à sua própria análise', sm:16, rs:-90, extra:'A Bia deixa de mexer com a sua questão.', fx:'analise'},
+ encaixe:{e:'🥪', t:'Encaixar um paciente e comer na mesa', sm:-16, rs:120},
+ caminhada:{e:'🚶', t:'Volta no quarteirão', sm:9, rs:0},
+ supervisao:{e:'📞', t:'Supervisão rápida por telefone', sm:0, rs:-60, extra:'Na próxima sessão, desgaste e insights custam a metade.', fx:'supervisao'}
+};
+const DESCULPAS = [
+ 'Me desculpe, meu gato ficou preso na máquina de lavar!',
+ 'Ih, esqueci o feijão no fogo. Preciso correr!',
+ 'O encanador chegou. É agora ou só em março!',
+ 'Minha mãe ligou sete vezes, deve ser grave!'
+];
+const OCIOSO = {bem:['👂','🤔','📝'], cansado:['⏰','☕','🤔','🥱'], limite:['🍕','🏖️','💤','📺']};
+const DISTRAI = ['🍕','🏖️','💤','📺','🛒'];
+const PAREDE = {'07h':'#cfe6f5','08h':'#cfe6f5','09h':'#d3ecdf','10h':'#d9efd2','12h':'#fff0b8','14h':'#ffe6a8','15h':'#ffd9a6','16h':'#ffcfa8','17h':'#f3c6c9','18h':'#d2c4ef','19h':'#bdb3e8'};
+const HORAS = Object.keys(PAREDE);
+
+const el = {palco:$('#palco'), intro:$('#intro'), cena:$('#cena'), intervalo:$('#intervalo'), fim:$('#fim'),
+  pensa:$('#pensa'), pensaEmo:$('#pensa-emo'), preco:$('#preco'), falaEmo:$('#fala-emo'), fr:$('#fr'), tempo:$('#tempo'),
+  aviso:$('#aviso'), dica:$('#dica'), emerg:$('#emergencia'), agenda:$('#agenda'), sm:$('#sm'), astro:$('#astro'), janela:document.querySelector('.janela')};
+let S;
+
+function novo(){
+  S = {fase:'intro', i:-1, sm:SM0, rs:RS0, st:PAC.map(() => 0), res:PAC.map(() => null),
+       emerg:false, analise:false, superv:false, usados:0, passou:0, perdidos:0, burnout:false,
+       rot:[], k:0, tk:0, tk0:1, t:0, dur:1, insight:false, uso:0, dreno:0, custo:0, toca:false, sup:false, espera:0, hora:'07h'};
+}
+const nivel = () => S.sm >= 50 ? 'bem' : S.sm >= 25 ? 'cansado' : 'limite';
+const dica = t => { el.dica.textContent = t; };
+function mostrar(id){ for (const k of ['intro','cena','intervalo','fim']) el[k].hidden = k !== id; el.palco.scrollTop = 0; }
+function setEmo(node, e){ if (node.textContent === e) return; node.textContent = e; node.classList.remove('pop'); void node.offsetWidth; node.classList.add('pop'); }
+function flutua(alvo, txt){
+  const a = alvo.getBoundingClientRect(), c = el.cena.getBoundingClientRect(), s = document.createElement('span');
+  s.className = 'flu'; s.textContent = txt;
+  s.style.left = (a.left - c.left + a.width / 2 - 14) + 'px'; s.style.top = (a.top - c.top - 6) + 'px';
+  el.cena.append(s); setTimeout(() => s.remove(), 1200);
+}
+
+function montarAgenda(){
+  el.agenda.innerHTML = PAC.map((p, i) =>
+    '<li class="chip" id="chip-' + i + '"><span class="av">' + p.av + '</span><span class="h">' + p.h + '</span><span class="n">' + p.nome + '</span>'
+    + '<span class="peso">' + PESO[p.peso] + (p.toca ? ' ⚡' : '') + '</span><span class="res"></span></li>').join('');
+}
+
+function ui(){
+  const n = nivel(), sm = Math.max(0, Math.round(S.sm));
+  el.sm.dataset.n = n; $('#sm-i').style.width = sm + '%'; $('#sm-num').textContent = sm;
+  $('#sm-estado').textContent = S.sm <= 0 ? 'travou' : n === 'bem' ? 'bem' : n === 'cansado' ? 'cansado' : 'no limite';
+  el.fr.dataset.s = n;
+  $('#hora').textContent = S.hora; $('#caixa').textContent = 'R$ ' + S.rs;
+  $('#estrelas').textContent = '⭐ ' + S.st.reduce((a, b) => a + b, 0);
+  el.palco.style.setProperty('--parede', PAREDE[S.hora]);
+  const p = HORAS.indexOf(S.hora) / (HORAS.length - 1);
+  el.astro.style.left = (6 + 70 * p) + '%'; el.astro.style.top = (62 - Math.sin(p * Math.PI) * 52) + '%';
+  el.janela.style.setProperty('--ceu', p > 0.95 ? '#4b4580' : p > 0.75 ? '#ffb37a' : '#8fd0ff');
+  PAC.forEach((pc, i) => {
+    const c = $('#chip-' + i), r = S.res[i];
+    c.classList.toggle('atual', i === S.i && S.fase !== 'fim' && !r);
+    c.classList.toggle('feito', !!r);
+    c.querySelector('.res').textContent = r ? r.rosto + (r.st ? ' ⭐' + r.st : '') : '';
+    c.querySelector('.peso').textContent = PESO[pc.peso] + (pc.toca && !S.analise ? ' ⚡' : '');
+  });
+  const naSessao = S.fase === 'sessao';
+  el.emerg.hidden = !naSessao;
+  el.emerg.disabled = S.emerg;
+  el.emerg.textContent = S.emerg ? '🚨 Emergência já usada' : '🚨 Inventar uma emergência';
+  $('#eu-tag').textContent = n === 'bem' ? 'escutando' : n === 'cansado' ? 'cansado' : 'no limite';
+}
+function uiSessao(){
+  const sm = Math.max(0, Math.round(S.sm));
+  $('#sm-i').style.width = sm + '%'; $('#sm-num').textContent = sm;
+  el.tempo.style.width = Math.min(100, S.t / S.dur * 100).toFixed(1) + '%';
+  if (S.insight) el.pensa.style.setProperty('--w', Math.max(0, S.tk / S.tk0).toFixed(3));
+  if (el.sm.dataset.n !== nivel()) ui();
+}
+
+function roteiro(p){
+  const nPapo = Math.round((20 - p.nSent * p.tSent) / p.tPapo), total = nPapo + p.nSent, pos = new Set();
+  let g = 0;
+  while (pos.size < p.nSent && g++ < 800){
+    const k = 1 + Math.floor(Math.random() * (total - 1));
+    if (!pos.has(k - 1) && !pos.has(k + 1)) pos.add(k);
+  }
+  const r = []; let ant = '';
+  for (let i = 0; i < total; i++){
+    const s = pos.has(i); let e, t = 0;
+    do { e = pick(s ? p.sent : p.papo); } while (e === ant && t++ < 6);
+    ant = e; r.push({s, e, d: s ? p.tSent : p.tPapo});
+  }
+  return r;
+}
+
+function iniciarSessao(i){
+  const p = PAC[i];
+  S.i = i; S.fase = 'sessao'; S.hora = p.h;
+  S.sup = S.superv; S.superv = false; S.toca = !!p.toca && !S.analise;
+  S.rot = roteiro(p); S.dur = S.rot.reduce((a, s) => a + s.d, 0); S.t = 0; S.k = -1; S.insight = false; S.uso = 0;
+  S.dreno = p.desgaste * (S.toca ? 1.5 : 1) * (S.sup ? 0.5 : 1) / S.dur;
+  S.custo = Math.max(1, Math.round((p.custo + (S.toca ? 2 : 0)) * (S.sup ? 0.5 : 1)));
+  $('#pac-av').textContent = p.av; $('#pac-nome').textContent = p.nome;
+  $('#pac-tag').textContent = PESO[p.peso] + (S.toca ? ' · mexe com você' : '') + (S.sup ? ' · com supervisão' : '');
+  el.preco.textContent = '−' + S.custo + ' · ' + '⭐'.repeat(p.valor);
+  el.aviso.hidden = true; mostrar('cena');
+  dica(S.toca ? 'A Bia toca numa questão sua: tudo custa mais nesta sessão.' : 'Escute. Quando o balão do Freudinho acender, toque nele.');
+  proximoSlot();
+}
+function proximoSlot(){
+  if (S.insight){ S.passou++; S.insight = false; el.pensa.classList.remove('insight'); }
+  S.k++;
+  if (S.k >= S.rot.length){ encerrar('normal'); return; }
+  const sl = S.rot[S.k]; S.tk = S.tk0 = sl.d;
+  setEmo(el.falaEmo, sl.e);
+  if (sl.s){
+    const chance = S.sm >= 50 ? 1 : 0.25 + 0.75 * (S.sm / 50);
+    if (Math.random() < chance){
+      S.insight = true; setEmo(el.pensaEmo, '💡'); el.pensa.classList.add('insight'); el.pensa.style.setProperty('--w', 1);
+      dica('Insight! Toque no balão de pensamento.');
+    } else { S.perdidos++; setEmo(el.pensaEmo, pick(DISTRAI)); dica('O Freudinho se distraiu e perdeu um insight.'); }
+  } else setEmo(el.pensaEmo, S.toca && Math.random() < 0.4 ? '😖' : pick(OCIOSO[nivel()]));
+  ui();
+}
+function pegar(){
+  if (S.fase !== 'sessao' || !S.insight) return;
+  if (S.sm <= S.custo){
+    dica('Sem fôlego: esse insight zeraria a barra.');
+    el.pensa.classList.remove('treme'); void el.pensa.offsetWidth; el.pensa.classList.add('treme'); return;
+  }
+  const p = PAC[S.i];
+  S.sm -= S.custo; S.st[S.i] += p.valor; S.uso++; S.usados++; S.insight = false;
+  el.pensa.classList.remove('insight'); setEmo(el.pensaEmo, '✨'); setEmo(el.falaEmo, '😮');
+  flutua(el.falaEmo, '⭐'.repeat(p.valor)); flutua(el.pensa, '−' + S.custo);
+  dica('Boa. O paciente levou algo dessa.');
+  ui();
+}
+function encerrar(tipo){
+  const p = PAC[S.i]; S.insight = false; el.pensa.classList.remove('insight');
+  if (tipo === 'burnout'){
+    S.sm = 0; S.burnout = true; S.res[S.i] = {rosto:'🫠', txt:'sessão interrompida', st:S.st[S.i], pago:false};
+    fim(); return;
+  }
+  let rosto, txt, sub;
+  if (tipo === 'emergencia'){
+    S.st[S.i] = Math.max(0, S.st[S.i] - p.valor); rosto = '😠'; txt = 'saiu irritado';
+    el.aviso.innerHTML = '“' + pick(DESCULPAS) + '”<small>' + p.nome + ' saiu irritado e não pagou.</small>';
+  } else {
+    S.rs += HONORARIO;
+    if (S.uso >= 2){ rosto = '😌'; txt = 'saiu melhor'; } else if (S.uso === 1){ rosto = '🙂'; txt = 'saiu um pouco melhor'; } else { rosto = '😐'; txt = 'saiu igual'; }
+    el.aviso.innerHTML = p.nome + ' ' + txt + ' ' + rosto + '<small>+R$ ' + HONORARIO + ' no caixa</small>';
+  }
+  S.res[S.i] = {rosto, txt, st:S.st[S.i], pago:tipo === 'normal'};
+  setEmo(el.falaEmo, rosto); setEmo(el.pensaEmo, '💭');
+  el.aviso.hidden = false; el.tempo.style.width = '100%';
+  S.fase = 'saida'; S.espera = tipo === 'emergencia' ? 3.2 : 2;
+  dica(''); ui();
+}
+
+function efeito(o){
+  const a = [];
+  if (o.sm > 0) a.push('<span class="mais">+' + o.sm + ' saúde mental</span>');
+  if (o.sm < 0) a.push('<span class="menos">−' + (-o.sm) + ' saúde mental</span>');
+  if (o.rs > 0) a.push('<span class="mais">+R$ ' + o.rs + '</span>');
+  if (o.rs < 0) a.push('<span class="menos">R$ ' + (-o.rs) + '</span>');
+  if (o.rs === 0) a.push('grátis');
+  return a.join(' · ');
+}
+function intervalo(){
+  const it = INTERVALOS[S.i], prox = PAC[S.i + 1];
+  S.fase = 'intervalo'; S.hora = it.hora;
+  $('#intervalo-miolo').innerHTML =
+    '<h2>' + it.hora + ', intervalo</h2>'
+    + '<p class="lead">Às ' + prox.h + ' vem ' + prox.av + ' <b>' + prox.nome + '</b>, paciente ' + PESO[prox.peso]
+    + (prox.toca && !S.analise ? ', que mexe com uma questão sua' : '') + '. Escolha uma coisa para fazer agora.</p>'
+    + '<div class="ops">' + it.ops.map(k => {
+        const o = OPS[k], off = (o.rs < 0 && S.rs < -o.rs) || (o.sm < 0 && S.sm <= -o.sm);
+        return '<button class="op" type="button" id="op-' + k + '" data-k="' + k + '"' + (off ? ' disabled' : '') + '><span class="e">' + o.e + '</span><span class="t">' + o.t + '</span>'
+          + '<span class="f">' + efeito(o) + '</span>' + (o.extra ? '<span class="x">' + o.extra + '</span>' : '') + (off ? '<span class="x">Não dá agora.</span>' : '') + '</button>';
+      }).join('') + '</div>';
+  document.querySelectorAll('.op').forEach(b => b.addEventListener('click', () => escolher(b.dataset.k)));
+  mostrar('intervalo'); dica('O intervalo é a hora de recuperar a barra, ou de fazer caixa.'); ui();
+}
+function escolher(k){
+  if (S.fase !== 'intervalo') return;
+  const o = OPS[k];
+  S.sm = Math.min(100, S.sm + o.sm); S.rs += o.rs;
+  if (o.fx === 'analise') S.analise = true;
+  if (o.fx === 'supervisao') S.superv = true;
+  document.querySelectorAll('.op').forEach(b => { b.disabled = true; b.classList.toggle('escolhida', b.dataset.k === k); });
+  S.fase = 'pausa'; S.espera = 1; dica(o.e + ' ' + o.t + '.'); ui();
+}
+
+function fim(){
+  S.fase = 'fim'; if (!S.burnout) S.hora = '19h';
+  const total = S.st.reduce((a, b) => a + b, 0), sm = Math.max(0, Math.round(S.sm));
+  let tit, txt;
+  if (S.burnout){ tit = 'O Freudinho travou 🫠'; txt = 'A barra zerou na sessão das ' + PAC[S.i].h + ' e o resto do dia foi desmarcado. Sem honorário de quem não foi atendido.'; }
+  else if (total >= 16){ tit = 'Dia de mestre'; txt = 'Pacientes melhores e você ainda de pé. Amanhã tem mais.'; }
+  else if (total >= 9){ tit = 'Bom dia de trabalho'; txt = 'Deu para ajudar bastante gente sem se acabar.'; }
+  else { tit = 'Dia de sobrevivência'; txt = 'Você chegou ao fim, mas quase ninguém saiu diferente.'; }
+  const linhas = PAC.map((p, i) => {
+    const r = S.res[i];
+    return '<li><span class="h">' + p.h + '</span><span class="a">' + p.av + '</span><span>' + p.nome + ', ' + (r ? r.txt : 'desmarcado') + '</span><span class="r">'
+      + (r ? r.rosto + (r.st ? ' ⭐' + r.st : '') : '✖️') + '</span></li>';
+  }).join('');
+  $('#fim-miolo').innerHTML = '<h2>' + tit + '</h2><p class="lead">' + txt + '</p>'
+    + '<dl class="placar"><div><dt>Estrelas</dt><dd>⭐ ' + total + '</dd></div><div><dt>Caixa</dt><dd>R$ ' + S.rs + '</dd></div><div><dt>Saúde mental</dt><dd>' + sm + '</dd></div></dl>'
+    + '<ul class="lista">' + linhas + '</ul>'
+    + '<p class="nota">Insights: ' + S.usados + ' aproveitados, ' + S.passou + ' deixados passar, ' + S.perdidos + ' perdidos por distração.'
+    + (S.emerg ? ' Emergência inventada: 1.' : '') + '</p>'
+    + '<button class="botao" id="denovo" type="button">Jogar outro dia</button>';
+  $('#denovo').addEventListener('click', () => { novo(); mostrar('intro'); dica('A agenda de hoje está aí em cima. Os mais pesados vêm à tarde.'); ui(); });
+  mostrar('fim'); dica(''); ui();
+}
+
+function tick(dt){
+  if (!S) return;
+  if (S.fase === 'sessao'){
+    S.t += dt; S.sm -= S.dreno * dt;
+    if (S.sm <= 0){ encerrar('burnout'); return; }
+    S.tk -= dt; if (S.tk <= 0) proximoSlot();
+    if (S.fase === 'sessao') uiSessao();
+  } else if (S.fase === 'saida'){
+    S.espera -= dt; if (S.espera <= 0){ if (S.i >= PAC.length - 1) fim(); else intervalo(); }
+  } else if (S.fase === 'pausa'){
+    S.espera -= dt; if (S.espera <= 0) iniciarSessao(S.i + 1);
+  }
+}
+
+$('#abrir').addEventListener('click', () => { novo(); iniciarSessao(0); });
+el.pensa.addEventListener('click', pegar);
+el.emerg.addEventListener('click', () => { if (S.fase === 'sessao' && !S.emerg){ S.emerg = true; encerrar('emergencia'); } });
+document.addEventListener('keydown', e => {
+  if (e.key !== ' ' || e.target.closest('button')) return;
+  if (S.fase === 'sessao'){ e.preventDefault(); pegar(); }
+});
+
+montarAgenda(); novo(); ui();
+let last = performance.now();
+setInterval(() => { const now = performance.now(), dt = Math.min(0.2, (now - last) / 1000) * vel(); last = now; tick(dt); }, 40);
+})();
+</script>
+</body>
+</html>

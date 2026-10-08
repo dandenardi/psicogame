@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Consultório do Freudinho</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+/* Layout: moldura escura de fliperama em volta de uma cena clara (o consultório).
+   Em cima o painel (barra de saúde mental, dia, caixa, estrelas) e a agenda com o vínculo de cada paciente;
+   no meio a cena ou a tela do momento (manhã, intervalo, noite, lojinha); embaixo a dica e a emergência. */
+:root{
+  color-scheme: dark;
+  --fundo:#241f38; --fundo-2:#322b4d; --linha:#51487a; --claro:#f4efff; --apagado:#b9afdc;
+  --tinta:#2b2540; --papel:#fffdf7; --sol:#ffc93c; --sofa:#2f9488; --chao:#c98f5e; --chao-2:#b57c4d; --terno:#3d3559;
+  --bem:#5fd39a; --cansado:#f5b83d; --limite:#f0705f; --perigo:#e5484d; --vinc:#ff6f9c;
+  --mais:#17734a; --menos:#b0362c; --sombra:rgba(43,37,64,.3); --trilho:rgba(43,37,64,.16); --vidro:rgba(255,253,247,.62);
+  --parede:#cfe6f5; --ceu:#8fd0ff;
+  --f-tit:"Baloo 2","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  --f-txt:"DM Sans","Segoe UI",system-ui,sans-serif;
+}
+html{height:100%;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  height:100%;margin:0;background:var(--fundo);color:var(--claro);
+  font-family:var(--f-txt);font-size:15px;line-height:1.4;
+  display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto;
+  gap:10px;padding-inline:16px;padding-block:10px 12px;max-width:980px;margin-inline:auto;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--sol);outline-offset:3px}
+
+/* painel */
+.hud{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.titulo{font-family:var(--f-tit);font-weight:800;font-size:1.25rem;line-height:1;margin-right:auto}
+.stat{font-family:var(--f-tit);font-weight:700;font-size:1.08rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stat small{font-family:var(--f-txt);font-weight:500;font-size:.7rem;color:var(--apagado);letter-spacing:.05em;text-transform:uppercase;margin-right:5px}
+.sm{flex:1 1 100%;display:grid;gap:4px;min-width:0}
+.sm-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.82rem;color:var(--apagado)}
+.sm-top b{font-family:var(--f-tit);font-weight:700;font-size:1.05rem;color:var(--claro);font-variant-numeric:tabular-nums}
+.sm-estado{text-transform:uppercase;letter-spacing:.06em;font-size:.7rem;border:1px solid var(--linha);border-radius:99px;padding:1px 8px;margin-right:6px}
+.sm-bar{position:relative;height:16px;background:var(--fundo-2);border-radius:99px;overflow:hidden}
+.sm-bar i{display:block;height:100%;width:80%;border-radius:99px;background:var(--bem)}
+.sm[data-n="cansado"] .sm-bar i{background:var(--cansado)}
+.sm[data-n="limite"] .sm-bar i{background:var(--limite)}
+.sm-bar span{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--claro);opacity:.55}
+
+/* vínculo */
+.pips{display:inline-flex;gap:3px;vertical-align:middle}
+.pips i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--vinc);display:block}
+.pips i.on{background:var(--vinc)}
+
+/* agenda */
+.agenda{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.chip{background:var(--fundo-2);border:2px solid transparent;border-radius:12px;padding:6px 8px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:0 8px;align-items:center;min-width:0}
+.chip .av{font-size:1.5rem;line-height:1;grid-row:span 2}
+.chip .h{font-family:var(--f-tit);font-weight:700;font-size:.82rem;color:var(--apagado);font-variant-numeric:tabular-nums}
+.chip .n{font-weight:700;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip .peso{grid-column:1/-1;font-size:.72rem;color:var(--apagado);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip .pips{grid-column:1/-1;margin-top:4px}
+.chip .res{grid-column:1/-1;font-size:.8rem;font-family:var(--f-tit);font-weight:700;min-height:1.25em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip.atual{border-color:var(--sol)}
+.chip.feito{opacity:.72}
+.chip.vago{opacity:.5}
+
+/* palco */
+.palco{position:relative;background:var(--parede);color:var(--tinta);border-radius:22px;overflow:auto;min-height:0;transition:background-color 1.2s}
+.palco>section{min-height:100%}
+.miolo{padding:22px 20px 24px;max-width:42rem;margin-inline:auto}
+.palco h1,.palco h2{font-family:var(--f-tit);font-weight:800;line-height:1.05;margin:0 0 8px;text-wrap:balance}
+.palco h1{font-size:clamp(1.7rem,6vw,2.4rem)}
+.palco h2{font-size:clamp(1.5rem,5vw,2rem)}
+.palco h3{font-family:var(--f-tit);font-weight:700;font-size:1.05rem;margin:18px 0 8px}
+.lead{font-size:1.02rem;margin:0 0 14px;max-width:36rem}
+.regras{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:9px;max-width:36rem}
+.regras li{display:grid;grid-template-columns:2rem minmax(0,1fr);gap:8px;align-items:start}
+.regras li>span:first-child{font-size:1.35rem;line-height:1.1}
+.botoes{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px;position:sticky;bottom:0;padding:10px 0 12px;background:var(--parede);transition:background-color 1.2s}
+.botao{font-family:var(--f-tit);font-weight:800;font-size:1.1rem;background:var(--tinta);color:var(--papel);border:0;border-radius:16px;padding:10px 22px;box-shadow:0 4px 0 var(--sombra)}
+.botao.leve{background:var(--papel);color:var(--tinta);border:3px solid var(--tinta);padding:7px 18px;font-weight:700;font-size:1rem}
+.botao:not(:disabled):hover{transform:translateY(-1px)}
+.botao:not(:disabled):active{transform:translateY(2px);box-shadow:none}
+.botao:disabled{opacity:.45;cursor:default;box-shadow:none}
+#comecar{position:sticky;bottom:12px}
+.mais{color:var(--mais)} .menos{color:var(--menos)}
+.conta{font-weight:700;margin:12px 0 0}
+.nota{font-size:.9rem;margin:10px 0 0}
+
+/* manhã e noite: linhas de paciente */
+.pacs{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.pacs li{display:grid;grid-template-columns:2.4rem minmax(0,1fr) auto;gap:4px 10px;align-items:center;background:var(--vidro);border-radius:14px;padding:8px 12px}
+.pacs .a{font-size:1.7rem;line-height:1}
+.pacs .nm{font-family:var(--f-tit);font-weight:700;font-size:1.02rem;line-height:1.15}
+.pacs .nm small{font-family:var(--f-txt);font-weight:500;font-size:.8rem;margin-left:6px}
+.pacs .inf{font-size:.82rem;display:flex;flex-wrap:wrap;gap:2px 10px;align-items:center}
+.pacs .r{font-family:var(--f-tit);font-weight:700;white-space:nowrap;text-align:right}
+.tog{font-family:var(--f-tit);font-weight:700;font-size:.92rem;border:3px solid var(--tinta);border-radius:99px;padding:3px 12px;background:var(--tinta);color:var(--papel);white-space:nowrap}
+.tog[aria-pressed="false"]{background:transparent;color:var(--tinta);border-style:dashed}
+
+/* cena */
+#cena{position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:340px;height:100%;overflow:hidden}
+.chao{position:absolute;left:0;right:0;bottom:0;height:27%;background:var(--chao);border-top:5px solid var(--chao-2)}
+.janela{position:absolute;top:18px;left:50%;width:92px;height:74px;margin-left:-46px;border:5px solid var(--tinta);border-radius:12px;background:var(--ceu);overflow:hidden;transition:background-color 1.2s}
+.janela::before,.janela::after{content:"";position:absolute;background:var(--tinta)}
+.janela::before{left:50%;top:0;bottom:0;width:4px;margin-left:-2px}
+.janela::after{top:50%;left:0;right:0;height:4px;margin-top:-2px}
+.astro{position:absolute;width:24px;height:24px;border-radius:50%;background:var(--sol);left:10%;top:50%;transition:left 1.2s,top 1.2s}
+.tempo{position:relative;z-index:1;height:8px;margin:14px 18px 0;background:var(--trilho);border-radius:99px;overflow:hidden}
+.tempo i{display:block;height:100%;width:0;background:var(--tinta);border-radius:99px}
+.dupla{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;gap:8px;padding:8px 12px 0}
+.lado{display:grid;justify-items:center;gap:10px;min-width:0}
+.placa{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px 12px 14px;text-align:center;color:var(--papel);font-size:.86rem}
+.placa b{font-family:var(--f-tit);font-weight:700;font-size:1rem;display:block}
+.placa .pips{margin-left:6px}
+.placa .pips i{border-color:var(--papel)} .placa .pips i.on{background:var(--papel)}
+
+.balao{position:relative;width:min(132px,100%);aspect-ratio:1.18;display:grid;place-items:center;background:var(--papel);border:4px solid var(--tinta)}
+.balao .emo{font-size:3.1rem;line-height:1}
+.fala{border-radius:26px}
+.fala::after{content:"";position:absolute;bottom:-13px;left:58%;width:20px;height:20px;background:var(--papel);border-right:4px solid var(--tinta);border-bottom:4px solid var(--tinta);transform:rotate(45deg)}
+.pensa{border-radius:50%;padding:0}
+.pensa::before,.pensa::after{content:"";position:absolute;background:var(--papel);border:4px solid var(--tinta);border-radius:50%}
+.pensa::before{width:22px;height:22px;bottom:-16px;left:34%}
+.pensa::after{width:12px;height:12px;bottom:-30px;left:44%}
+.pensa .anel{position:absolute;inset:-12px;border-radius:50%;pointer-events:none;opacity:0;
+  background:conic-gradient(var(--sol) calc(var(--w,1)*360deg),transparent 0);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 6px));mask:radial-gradient(farthest-side,transparent calc(100% - 7px),#000 calc(100% - 6px))}
+.pensa .preco{position:absolute;left:50%;bottom:-48px;transform:translateX(-50%);white-space:nowrap;font-family:var(--f-tit);font-weight:800;font-size:.95rem;background:var(--tinta);color:var(--sol);border-radius:99px;padding:1px 11px;opacity:0}
+.pensa:not(.insight){cursor:default}
+.pensa.insight{background:var(--sol);animation:pulsa .5s ease-in-out infinite alternate}
+.pensa.insight::before,.pensa.insight::after{background:var(--sol)}
+.pensa.insight .anel,.pensa.insight .preco{opacity:1}
+.pensa.treme{animation:treme .3s}
+.emo.pop{animation:pop .28s ease-out}
+@keyframes pulsa{from{transform:scale(1)}to{transform:scale(1.09)}}
+@keyframes pop{from{transform:scale(.55)}to{transform:scale(1)}}
+@keyframes treme{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.fr{width:118px;height:auto;display:block;margin-top:34px}
+.fr .terno{fill:var(--terno)} .fr .gravata{fill:var(--perigo)}
+.fr .rosto,.fr .barba{fill:var(--papel);stroke:var(--tinta);stroke-width:3}
+.fr .cabelo{fill:none;stroke:var(--papel);stroke-width:6;stroke-linecap:round}
+.fr .boca{fill:none;stroke:var(--tinta);stroke-width:2.6;stroke-linecap:round}
+.fr .lente{fill:none;stroke:var(--tinta);stroke-width:2.8}
+.fr .olho{fill:var(--tinta)} .fr .palp{fill:none;stroke:var(--tinta);stroke-width:2.8;stroke-linecap:round}
+.fr[data-s="bem"] .o-cansado,.fr[data-s="bem"] .o-limite,
+.fr[data-s="cansado"] .o-ok,.fr[data-s="cansado"] .o-limite,
+.fr[data-s="limite"] .o-ok,.fr[data-s="limite"] .o-cansado{display:none}
+.pac-fig{display:grid;justify-items:center;margin-top:34px}
+.pac-av{font-size:4.6rem;line-height:1;margin-bottom:-14px;position:relative;z-index:1}
+.sofa{width:150px;max-width:100%;height:50px;background:var(--sofa);border:4px solid var(--tinta);border-radius:20px 20px 10px 10px}
+.aviso{position:absolute;z-index:3;left:50%;top:44%;transform:translate(-50%,-50%);width:min(88%,26rem);background:var(--papel);border:4px solid var(--tinta);border-radius:18px;padding:12px 16px;text-align:center;font-family:var(--f-tit);font-weight:700;font-size:1.1rem;line-height:1.25;box-shadow:0 5px 0 var(--sombra)}
+.aviso small{display:block;font-family:var(--f-txt);font-weight:500;font-size:.88rem;margin-top:2px}
+.flu{position:absolute;z-index:4;pointer-events:none;font-family:var(--f-tit);font-weight:800;font-size:1.5rem;color:var(--tinta);animation:sobe 1.1s ease-out forwards}
+@keyframes sobe{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-54px)}}
+
+/* cartões de escolha (intervalo e lojinha) */
+.ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px}
+.op{text-align:left;background:var(--papel);color:var(--tinta);border:4px solid var(--tinta);border-radius:18px;padding:12px 14px;display:grid;gap:4px;align-content:start;box-shadow:0 5px 0 var(--sombra);min-width:0}
+.op .e{font-size:2.1rem;line-height:1}
+.op .t{font-family:var(--f-tit);font-weight:700;font-size:1.08rem;line-height:1.15}
+.op .f{font-size:.9rem;font-weight:700}
+.op .x{font-size:.84rem}
+.op:not(:disabled):hover{transform:translateY(-2px)}
+.op:disabled{opacity:.45;cursor:default;box-shadow:none}
+.op.escolhida{opacity:1;background:var(--sol)}
+
+.placar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 14px}
+.placar div{background:var(--papel);border:3px solid var(--tinta);border-radius:16px;padding:8px 12px;min-width:0}
+.placar dt{font-size:.72rem;letter-spacing:.05em;text-transform:uppercase}
+.placar dd{margin:0;font-family:var(--f-tit);font-weight:800;font-size:1.6rem;font-variant-numeric:tabular-nums;line-height:1.1}
+
+/* rodapé */
+.rodape{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-height:40px}
+#dica{margin:0;flex:1 1 220px;min-width:0;color:var(--apagado);font-size:.92rem}
+#emergencia{font-family:var(--f-tit);font-weight:700;background:transparent;border:2px solid var(--perigo);color:var(--claro);border-radius:99px;padding:6px 16px}
+#emergencia:not(:disabled):hover{background:var(--perigo)}
+#emergencia:disabled{opacity:.45;cursor:default;border-color:var(--linha)}
+
+@media (max-width:560px){
+  .chip{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;padding:6px 3px}
+  .chip .av{grid-row:auto}
+  .chip .n,.chip .peso{display:none}
+  .hud{gap:6px 11px}
+  .stat{font-size:1rem}
+  .stat small{font-size:.64rem;margin-right:4px}
+  .stat.est small{display:none}
+  .chip .pips{gap:2px}
+  .chip .pips i{width:7px;height:7px}
+  .janela{display:none}
+  .balao .emo{font-size:2.7rem}
+  .placar dd{font-size:1.3rem}
+  .miolo{padding:18px 14px 20px}
+  .ops{grid-template-columns:minmax(0,1fr);gap:10px}
+  .op{grid-template-columns:auto minmax(0,1fr);column-gap:12px;padding:9px 12px}
+  .op .e{grid-row:span 3;align-self:center}
+  .pacs li{padding:8px 10px;column-gap:8px}
+}
+@media (min-width:760px){
+  .sm{flex:1 1 220px}
+  .titulo{margin-right:8px}
+  body{padding-block:16px 16px;gap:12px}
+  .balao{width:156px}
+  .balao .emo{font-size:3.8rem}
+}
+@media (prefers-reduced-motion:reduce){
+  .pensa.insight,.emo.pop,.pensa.treme{animation:none}
+  .palco,.janela,.astro,.botoes{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="hud">
+  <div class="titulo">Consultório do Freudinho</div>
+  <div class="sm" id="sm" data-n="bem">
+    <div class="sm-top"><span>Saúde mental</span><span><span class="sm-estado" id="sm-estado">bem</span><b id="sm-num">80</b></span></div>
+    <div class="sm-bar"><i id="sm-i"></i><span></span></div>
+  </div>
+  <div class="stat"><small>Dia</small><span id="dia">1/3</span></div>
+  <div class="stat"><small>Agora</small><span id="hora">07h</span></div>
+  <div class="stat"><small>Caixa</small><span id="caixa">R$ 20</span></div>
+  <div class="stat est"><small>Estrelas</small><span id="estrelas">⭐ 0</span></div>
+</header>
+
+<ol class="agenda" id="agenda" aria-label="Agenda do dia"></ol>
+
+<main class="palco" id="palco">
+  <section id="intro">
+    <div class="miolo">
+      <h1>Três dias, cinco pacientes, uma barra só</h1>
+      <p class="lead">Você é o Freudinho, recém-formado, sublocando uma sala por turno. Agora os pacientes voltam todo dia, e o que você faz hoje aparece amanhã.</p>
+      <ul class="regras">
+        <li><span>💡</span><span>Na sessão continua igual: quando o balão de pensamento acender, toque para aproveitar o <b>insight</b>. Custa barra e rende ⭐. Deixar passar não custa nada.</span></li>
+        <li><span>💗</span><span>Cada paciente tem um <b>vínculo</b> de 0 a 5. Sessão boa aproxima. Remarcar, se distrair na sessão ou inventar emergência afasta.</span></li>
+        <li><span>🚪</span><span>Vínculo zerado fica <b>por um fio</b>: mais um tropeço e o paciente desiste. Vínculo cheio e ⭐ suficientes, ele tem <b>alta</b> e indica você.</span></li>
+        <li><span>🔑</span><span>Abrir o consultório custa <b>R$ 150 por dia</b>. Cada sessão paga R$ 120.</span></li>
+        <li><span>🛒</span><span>À noite tem lojinha, e dormir devolve só parte da barra.</span></li>
+        <li><span>🫠</span><span>Se a barra zerar, o dia acaba e quem faltava é desmarcado em cima da hora.</span></li>
+      </ul>
+      <button class="botao" id="comecar" type="button">Começar o dia 1</button>
+    </div>
+  </section>
+
+  <section id="cena" hidden>
+    <div class="chao"></div>
+    <div class="janela" aria-hidden="true"><div class="astro" id="astro"></div></div>
+    <div class="tempo" aria-hidden="true"><i id="tempo"></i></div>
+    <div class="dupla">
+      <div class="lado">
+        <button class="balao pensa" id="pensa" type="button" aria-label="Balão de pensamento do Freudinho">
+          <span class="anel"></span><span class="emo" id="pensa-emo">🤔</span><span class="preco" id="preco"></span>
+        </button>
+        <svg class="fr" id="fr" data-s="bem" viewBox="0 0 120 150" role="img" aria-label="Freudinho">
+          <path class="terno" d="M18 150 Q18 106 60 100 Q102 106 102 150Z"></path>
+          <path class="gravata" d="M50 106 L60 112 L70 106 L70 120 L60 113 L50 120Z"></path>
+          <path class="cabelo" d="M30 42 Q22 28 36 21 M90 42 Q98 28 84 21"></path>
+          <circle class="rosto" cx="60" cy="50" r="30"></circle>
+          <path class="barba" d="M31 57 Q34 94 60 103 Q86 94 89 57 Q75 72 60 68 Q45 72 31 57Z"></path>
+          <path class="boca" d="M53 83 Q60 87 67 83"></path>
+          <circle class="lente" cx="47" cy="48" r="9.5"></circle><circle class="lente" cx="73" cy="48" r="9.5"></circle><path class="lente" d="M56.5 48h7"></path>
+          <g class="o-ok"><circle class="olho" cx="47" cy="48" r="2.8"></circle><circle class="olho" cx="73" cy="48" r="2.8"></circle></g>
+          <g class="o-cansado"><path class="palp" d="M40 45.5h14M66 45.5h14"></path><circle class="olho" cx="47" cy="50.5" r="2.2"></circle><circle class="olho" cx="73" cy="50.5" r="2.2"></circle></g>
+          <g class="o-limite"><path class="palp" d="M41.5 49.5h11M67.5 49.5h11"></path></g>
+        </svg>
+      </div>
+      <div class="lado">
+        <div class="balao fala"><span class="emo" id="fala-emo">💬</span></div>
+        <div class="pac-fig"><div class="pac-av" id="pac-av">👵</div><div class="sofa"></div></div>
+      </div>
+    </div>
+    <div class="placa">
+      <div><b>Freudinho</b><span id="eu-tag">escutando</span></div>
+      <div><b id="pac-nome">Paciente</b><span id="pac-tag"></span></div>
+    </div>
+    <div class="aviso" id="aviso" hidden></div>
+  </section>
+
+  <section id="tela" hidden><div class="miolo" id="tela-miolo"></div></section>
+</main>
+
+<footer class="rodape">
+  <p id="dica">Os pontinhos na agenda são o vínculo de cada paciente.</p>
+  <button id="emergencia" type="button" hidden>🚨 Inventar uma emergência</button>
+</footer>
+
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const vel = () => window.__vel || 1;
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const HONORARIO = 120, TURNO = 150, BONUS_ALTA = 200, SM0 = 80, RS0 = 20, SONO = 55, DIAS = 3;
+const PESO = {1:'leve', 2:'médio', 3:'pesado'};
+const HORARIOS = ['08h','10h','14h','16h','18h'];
+
+const BASE = [
+ {av:'👵', nome:'Dona Lurdes', peso:1, desgaste:9,  custo:5, valor:1, nSent:3, tPapo:1.5,  tSent:2.4, meta:8,  vinc:4, papo:['🧶','🌼','📺','🐈','☕','🧺','⛪'], sent:['🥲','💔','😢']},
+ {av:'👨', nome:'Caio',        peso:2, desgaste:15, custo:5, valor:1, nSent:5, tPapo:1.05, tSent:1.7, meta:12, vinc:3, papo:['📈','📧','⏰','💻','📱','🚗','☕'], sent:['😰','😬','😱']},
+ {av:'👴', nome:'Seu Armando', peso:3, desgaste:22, custo:9, valor:2, nSent:2, tPapo:1.9,  tSent:2.6, meta:8,  vinc:2, papo:['📰','⚽','🔧','🤐','🧱','🌧️'], sent:['😤','😞']},
+ {av:'👩', nome:'Bia',         peso:3, desgaste:18, custo:8, valor:2, nSent:4, tPapo:1.5,  tSent:2.3, meta:14, vinc:3, toca:true, papo:['🎭','📸','👗','🍷','✈️','📱'], sent:['😢','👔','💔']},
+ {av:'👦', nome:'Téo',         peso:2, desgaste:13, custo:6, valor:1, nSent:4, tPapo:1.5,  tSent:2.3, meta:10, vinc:2, papo:['🎮','🍕','🛹','🎧','📚','💤'], sent:['😔','😳','😠']}
+];
+const ESPERA = [
+ {av:'👧', nome:'Nina',  peso:1, desgaste:8,  custo:5, valor:1, nSent:3, tPapo:1.5, tSent:2.4, meta:8,  vinc:2, papo:['🎨','🐶','📚','🍦','🎒','🌈'], sent:['😟','😢','😳']},
+ {av:'🧔', nome:'Jorge', peso:2, desgaste:14, custo:6, valor:1, nSent:4, tPapo:1.4, tSent:2.2, meta:10, vinc:2, papo:['🚚','📦','⚽','🍺','🧾','📱'], sent:['😤','😔','😰']}
+];
+const INTERVALOS = [
+ {hora:'09h', ops:['cafe','respirar','relatorio']},
+ {hora:'12h', ops:['almoco','analise','encaixe']},
+ {hora:'15h', ops:['cafe','caminhada','supervisao']},
+ {hora:'17h', ops:['cafe','respirar','relatorio']}
+];
+const OPS = {
+ cafe:{e:'☕', t:'Café com pão de queijo', sm:12, rs:-12},
+ respirar:{e:'🧘', t:'Três respirações na janela', sm:6, rs:0},
+ relatorio:{e:'📋', t:'Adiantar relatórios', sm:-6, rs:30},
+ almoco:{e:'🥗', t:'Almoçar com calma', sm:25, rs:-35},
+ analise:{e:'🛋️', t:'Ir à sua própria análise', sm:16, rs:-90, extra:'Hoje ninguém mexe com a sua questão.', fx:'analise'},
+ encaixe:{e:'🥪', t:'Encaixar um paciente e comer na mesa', sm:-16, rs:120},
+ caminhada:{e:'🚶', t:'Volta no quarteirão', sm:9, rs:0},
+ supervisao:{e:'📞', t:'Supervisão rápida por telefone', sm:0, rs:-60, extra:'Na próxima sessão, desgaste e insights custam a metade.', fx:'supervisao'}
+};
+const UPS = {
+ poltrona:{e:'🪑', t:'Poltrona boa', rs:250, d:'Toda sessão desgasta 20% menos.'},
+ planta:{e:'🪴', t:'Planta e janela aberta', rs:120, d:'Cada pausa recupera 4 a mais.'},
+ curso:{e:'🎓', t:'Curso de escuta', rs:300, d:'Cada insight rende +1 ⭐.'},
+ yoga:{e:'🤸', t:'Aula de yoga', rs:180, d:'Você recupera 15 a mais toda noite.'}
+};
+const DESCULPAS = [
+ 'Me desculpe, meu gato ficou preso na máquina de lavar!',
+ 'Ih, esqueci o feijão no fogo. Preciso correr!',
+ 'O encanador chegou. É agora ou só em março!',
+ 'Minha mãe ligou sete vezes, deve ser grave!'
+];
+const OCIOSO = {bem:['👂','🤔','📝'], cansado:['⏰','☕','🤔','🥱'], limite:['🍕','🏖️','💤','📺']};
+const DISTRAI = ['🍕','🏖️','💤','📺','🛒'];
+const PAREDE = {'07h':'#cfe6f5','08h':'#cfe6f5','09h':'#d3ecdf','10h':'#d9efd2','12h':'#fff0b8','14h':'#ffe6a8','15h':'#ffd9a6','16h':'#ffcfa8','17h':'#f3c6c9','18h':'#d2c4ef','19h':'#bdb3e8'};
+const HORAS = Object.keys(PAREDE);
+
+const el = {palco:$('#palco'), intro:$('#intro'), cena:$('#cena'), tela:$('#tela'), miolo:$('#tela-miolo'),
+  pensa:$('#pensa'), pensaEmo:$('#pensa-emo'), preco:$('#preco'), falaEmo:$('#fala-emo'), fr:$('#fr'), tempo:$('#tempo'),
+  aviso:$('#aviso'), dica:$('#dica'), emerg:$('#emergencia'), agenda:$('#agenda'), sm:$('#sm'), astro:$('#astro'), janela:document.querySelector('.janela')};
+let S;
+
+const copia = b => Object.assign({}, b, {arco:0, seguidos:0});
+function novo(){
+  S = {fase:'intro', dia:1, hora:'07h', sm:SM0, rs:RS0, estrelas:0, up:{}, folgaUsada:false, folgaHoje:false,
+       slots:BASE.map((b, i) => ({h:HORARIOS[i], p:copia(b), hoje:true, res:null, sai:null})), fila:ESPERA.map(copia),
+       altas:[], desist:[], usados:0, passou:0, perdidos:0, emergTotal:0, burnouts:0, avisos:[],
+       ordem:[], pos:0, i:-1, emerg:false, analise:false, superv:false, burnout:false, ganhoHoje:0,
+       rot:[], k:0, tk:0, tk0:1, t:0, dur:1, insight:false, uso:0, stSess:0, distraiu:false, dreno:0, custo:0, valor:1, toca:false, sup:false, espera:0};
+}
+const nivel = () => S.sm >= 50 ? 'bem' : S.sm >= 25 ? 'cansado' : 'limite';
+const dica = t => { el.dica.textContent = t; };
+const pips = v => '<span class="pips" role="img" aria-label="vínculo ' + v + ' de 5">' + [1,2,3,4,5].map(n => '<i' + (n <= v ? ' class="on"' : '') + '></i>').join('') + '</span>';
+const din = n => (n < 0 ? '−' : '') + 'R$ ' + Math.abs(n);
+const lista = a => a.length > 1 ? a.slice(0, -1).join(', ') + ' e ' + a[a.length - 1] : a.join('');
+const sinal = n => (n > 0 ? '+' : '−') + Math.abs(n);
+function mostrar(id){ for (const k of ['intro','cena','tela']) el[k].hidden = k !== id; el.palco.scrollTop = 0; }
+function tela(html){ el.miolo.innerHTML = html; mostrar('tela'); }
+function setEmo(node, e){ if (node.textContent === e) return; node.textContent = e; node.classList.remove('pop'); void node.offsetWidth; node.classList.add('pop'); }
+function flutua(alvo, txt){
+  const a = alvo.getBoundingClientRect(), c = el.cena.getBoundingClientRect(), s = document.createElement('span');
+  s.className = 'flu'; s.textContent = txt;
+  s.style.left = (a.left - c.left + a.width / 2 - 14) + 'px'; s.style.top = (a.top - c.top - 6) + 'px';
+  el.cena.append(s); setTimeout(() => s.remove(), 1200);
+}
+function mudaVinc(sl, dv){
+  const p = sl.p;
+  if (dv < 0 && p.vinc === 0){ if (!sl.sai){ sl.sai = 'desistiu'; S.desist.push(p.nome); } return; }
+  p.vinc = clamp(p.vinc + dv, 0, 5);
+}
+
+function ui(){
+  const n = nivel(), sm = Math.max(0, Math.round(S.sm));
+  el.sm.dataset.n = n; $('#sm-i').style.width = sm + '%'; $('#sm-num').textContent = sm;
+  $('#sm-estado').textContent = S.sm <= 0 ? 'travou' : n === 'bem' ? 'bem' : n === 'cansado' ? 'cansado' : 'no limite';
+  el.fr.dataset.s = n;
+  $('#dia').textContent = Math.min(S.dia, DIAS) + '/' + DIAS; $('#hora').textContent = S.hora;
+  $('#caixa').textContent = din(S.rs); $('#estrelas').textContent = '⭐ ' + S.estrelas;
+  el.palco.style.setProperty('--parede', PAREDE[S.hora]);
+  const pr = HORAS.indexOf(S.hora) / (HORAS.length - 1);
+  el.astro.style.left = (6 + 70 * pr) + '%'; el.astro.style.top = (62 - Math.sin(pr * Math.PI) * 52) + '%';
+  el.janela.style.setProperty('--ceu', pr > 0.95 ? '#4b4580' : pr > 0.75 ? '#ffb37a' : '#8fd0ff');
+  const naSessao = S.fase === 'sessao';
+  el.agenda.innerHTML = S.slots.map((s, i) => {
+    if (!s.p) return '<li class="chip vago"><span class="h">' + s.h + '</span><span class="n">vago</span></li>';
+    const p = s.p, cls = 'chip' + ((naSessao || S.fase === 'saida') && i === S.i ? ' atual' : '') + (s.res ? ' feito' : '');
+    return '<li class="' + cls + '"><span class="av">' + p.av + '</span><span class="h">' + s.h + '</span><span class="n">' + p.nome + '</span>'
+      + '<span class="peso">' + PESO[p.peso] + (p.toca && !S.analise ? ' ⚡' : '') + '</span>' + pips(p.vinc)
+      + '<span class="res">' + (s.res ? s.res.rosto + (s.res.st ? ' ⭐' + s.res.st : '') : '') + '</span></li>';
+  }).join('');
+  el.emerg.hidden = !naSessao; el.emerg.disabled = S.emerg;
+  el.emerg.textContent = S.emerg ? '🚨 Emergência já usada hoje' : '🚨 Inventar uma emergência';
+  $('#eu-tag').textContent = n === 'bem' ? 'escutando' : n === 'cansado' ? 'cansado' : 'no limite';
+}
+function uiSessao(){
+  const sm = Math.max(0, Math.round(S.sm));
+  $('#sm-i').style.width = sm + '%'; $('#sm-num').textContent = sm;
+  el.tempo.style.width = Math.min(100, S.t / S.dur * 100).toFixed(1) + '%';
+  if (S.insight) el.pensa.style.setProperty('--w', Math.max(0, S.tk / S.tk0).toFixed(3));
+  if (el.sm.dataset.n !== nivel()) ui();
+}
+
+/* ---------- manhã ---------- */
+function manha(){
+  S.fase = 'manha'; S.hora = '07h';
+  const com = S.slots.filter(s => s.p), n = com.filter(s => s.hoje).length;
+  const linhas = S.slots.map((s, i) => {
+    if (!s.p) return '<li><span class="a">🪑</span><span><span class="nm">' + s.h + ' vago</span></span><span></span></li>';
+    const p = s.p, pen = p.seguidos >= 1 ? 2 : 1;
+    const obs = p.vinc === 0 ? '⚠️ por um fio: mais um tropeço e desiste' : p.vinc <= 1 ? 'distante: a sessão pesa mais' : p.vinc >= 4 ? 'vínculo forte: +1 ⭐ por insight' : '';
+    return '<li><span class="a">' + p.av + '</span><span><span class="nm">' + s.h + ' ' + p.nome + '<small>' + PESO[p.peso] + (p.toca ? ' ⚡' : '') + '</small></span>'
+      + '<span class="inf">' + pips(p.vinc) + '<span>⭐ ' + p.arco + '/' + p.meta + ' para a alta</span>' + (obs ? '<span>' + obs + '</span>' : '') + '</span></span>'
+      + '<button class="tog" type="button" id="tog-' + i + '" data-i="' + i + '" aria-pressed="' + s.hoje + '">' + (s.hoje ? '✓ Atende' : 'Remarcado, ' + sinal(-pen) + ' vínculo') + '</button></li>';
+  }).join('');
+  const av = S.avisos.map(a => '<p class="nota">' + a + '</p>').join('');
+  tela('<h2>Dia ' + S.dia + ', de manhã</h2>'
+    + '<p class="lead">' + (S.dia === 1 ? 'Quem você atende hoje? Toque num paciente para remarcar.' : 'Você dormiu e acordou com ' + Math.round(S.sm) + ' de barra. Quem você atende hoje?') + '</p>' + av
+    + '<ul class="pacs">' + linhas + '</ul>'
+    + '<p class="conta">' + n + (n === 1 ? ' sessão' : ' sessões') + ' · honorários R$ ' + n * HONORARIO + ' · turno <span class="menos">−R$ ' + TURNO + '</span></p>'
+    + (n === 0 ? '<p class="nota">Sem ninguém na agenda não há turno para abrir. Atenda alguém ou tire a folga avisada.</p>' : '')
+    + '<p class="nota">Folga avisada, uma vez só: ninguém perde vínculo, a barra enche, e não entra dinheiro nem sai turno.</p>'
+    + '<div class="botoes"><button class="botao" id="abrir" type="button"' + (n === 0 ? ' disabled' : '') + '>Abrir o consultório</button>'
+    + '<button class="botao leve" id="folga" type="button"' + (S.folgaUsada ? ' disabled' : '') + '>' + (S.folgaUsada ? 'Folga já usada' : '🏖️ Folga avisada') + '</button></div>');
+  document.querySelectorAll('.tog').forEach(b => b.addEventListener('click', () => { const s = S.slots[+b.dataset.i]; s.hoje = !s.hoje; manha(); }));
+  $('#abrir').addEventListener('click', abrir);
+  $('#folga').addEventListener('click', () => { if (S.folgaUsada) return; S.folgaUsada = true; S.folgaHoje = true; S.sm = 100; S.ordem = []; noite(); });
+  dica('Remarcar custa vínculo. Remarcar o mesmo paciente dois dias seguidos custa o dobro.'); ui();
+}
+function abrir(){
+  S.avisos = []; S.ordem = [];
+  S.slots.forEach((s, i) => {
+    if (!s.p) return;
+    if (s.hoje){ S.ordem.push(i); return; }
+    const pen = s.p.seguidos >= 1 ? 2 : 1;
+    s.p.seguidos++; mudaVinc(s, -pen); s.res = {rosto:'📅', txt:'remarcado', st:0, dv:-pen};
+  });
+  if (!S.ordem.length) return;
+  S.pos = 0; iniciarSessao(S.ordem[0]);
+}
+
+/* ---------- sessão ---------- */
+function roteiro(p){
+  const nPapo = Math.round((20 - p.nSent * p.tSent) / p.tPapo), total = nPapo + p.nSent, pos = new Set();
+  let g = 0;
+  while (pos.size < p.nSent && g++ < 800){
+    const k = 1 + Math.floor(Math.random() * (total - 1));
+    if (!pos.has(k - 1) && !pos.has(k + 1)) pos.add(k);
+  }
+  const r = []; let ant = '';
+  for (let i = 0; i < total; i++){
+    const s = pos.has(i); let e, t = 0;
+    do { e = pick(s ? p.sent : p.papo); } while (e === ant && t++ < 6);
+    ant = e; r.push({s, e, d: s ? p.tSent : p.tPapo});
+  }
+  return r;
+}
+function iniciarSessao(i){
+  const sl = S.slots[i], p = sl.p;
+  S.i = i; S.fase = 'sessao'; S.hora = sl.h;
+  S.sup = S.superv; S.superv = false; S.toca = !!p.toca && !S.analise;
+  const distante = p.vinc <= 1, forte = p.vinc >= 4;
+  S.rot = roteiro(p); S.dur = S.rot.reduce((a, s) => a + s.d, 0); S.t = 0; S.k = -1; S.insight = false; S.uso = 0; S.stSess = 0; S.distraiu = false;
+  S.dreno = p.desgaste * (S.toca ? 1.5 : 1) * (S.sup ? 0.5 : 1) * (S.up.poltrona ? 0.8 : 1) * (distante ? 1.3 : 1) / S.dur;
+  S.custo = Math.max(1, Math.round((p.custo + (S.toca ? 2 : 0)) * (S.sup ? 0.5 : 1)));
+  S.valor = p.valor + (forte ? 1 : 0) + (S.up.curso ? 1 : 0);
+  $('#pac-av').textContent = p.av; $('#pac-nome').textContent = p.nome;
+  $('#pac-tag').innerHTML = PESO[p.peso] + pips(p.vinc);
+  el.preco.textContent = '−' + S.custo + ' · ' + (S.valor > 3 ? '⭐×' + S.valor : '⭐'.repeat(S.valor));
+  el.aviso.hidden = true; mostrar('cena');
+  dica(S.toca ? p.nome + ' toca numa questão sua: tudo custa mais nesta sessão.' : distante ? p.nome + ' está distante hoje, e a sessão pesa mais.'
+     : forte ? 'Vínculo forte: cada insight rende mais.' : 'Escute. Quando o balão do Freudinho acender, toque nele.');
+  proximoSlot();
+}
+function proximoSlot(){
+  if (S.insight){ S.passou++; S.insight = false; el.pensa.classList.remove('insight'); }
+  S.k++;
+  if (S.k >= S.rot.length){ encerrar('normal'); return; }
+  const sl = S.rot[S.k]; S.tk = S.tk0 = sl.d;
+  setEmo(el.falaEmo, sl.e);
+  if (sl.s){
+    const chance = S.sm >= 50 ? 1 : 0.25 + 0.75 * (S.sm / 50);
+    if (Math.random() < chance){
+      S.insight = true; setEmo(el.pensaEmo, '💡'); el.pensa.classList.add('insight'); el.pensa.style.setProperty('--w', 1);
+      dica('Insight! Toque no balão de pensamento.');
+    } else { S.perdidos++; S.distraiu = true; setEmo(el.pensaEmo, pick(DISTRAI)); dica('O Freudinho se distraiu. O paciente percebe, e o vínculo sente.'); }
+  } else setEmo(el.pensaEmo, S.toca && Math.random() < 0.4 ? '😖' : pick(OCIOSO[nivel()]));
+  ui();
+}
+function pegar(){
+  if (S.fase !== 'sessao' || !S.insight) return;
+  if (S.sm <= S.custo){
+    dica('Sem fôlego: esse insight zeraria a barra.');
+    el.pensa.classList.remove('treme'); void el.pensa.offsetWidth; el.pensa.classList.add('treme'); return;
+  }
+  const p = S.slots[S.i].p;
+  S.sm -= S.custo; p.arco += S.valor; S.estrelas += S.valor; S.stSess += S.valor; S.uso++; S.usados++; S.insight = false;
+  el.pensa.classList.remove('insight'); setEmo(el.pensaEmo, '✨'); setEmo(el.falaEmo, '😮');
+  flutua(el.falaEmo, S.valor > 3 ? '⭐×' + S.valor : '⭐'.repeat(S.valor)); flutua(el.pensa, '−' + S.custo);
+  dica('Boa. O paciente levou algo dessa.');
+  ui();
+}
+function encerrar(tipo){
+  const sl = S.slots[S.i], p = sl.p; S.insight = false; el.pensa.classList.remove('insight');
+  if (tipo === 'burnout'){
+    S.sm = 0; S.burnout = true; S.burnouts++; mudaVinc(sl, -1);
+    sl.res = {rosto:'🫠', txt:'sessão interrompida', st:S.stSess, dv:-1};
+    for (const j of S.ordem.slice(S.pos + 1)){ const o = S.slots[j]; mudaVinc(o, -2); o.res = {rosto:'✖️', txt:'desmarcado em cima da hora', st:0, dv:-2}; }
+    noite(); return;
+  }
+  let rosto, txt, dv = 0, linha;
+  if (tipo === 'emergencia'){
+    const tira = Math.min(S.stSess, S.valor); p.arco -= tira; S.estrelas -= tira; S.stSess -= tira;
+    dv = -2; rosto = '😠'; txt = 'saiu irritado';
+    linha = '“' + pick(DESCULPAS) + '”<small>' + p.nome + ' saiu irritado e não pagou · vínculo −2</small>';
+  } else {
+    S.rs += HONORARIO; S.ganhoHoje += HONORARIO;
+    if (S.uso >= 2){ rosto = '😌'; txt = 'saiu melhor'; dv = 1; } else if (S.uso === 1){ rosto = '🙂'; txt = 'saiu um pouco melhor'; } else { rosto = '😐'; txt = 'saiu igual'; }
+    if (S.distraiu) dv -= 1;
+    linha = p.nome + ' ' + txt + ' ' + rosto + '<small>+R$ ' + HONORARIO + (dv ? ' · vínculo ' + sinal(dv) : '') + (S.distraiu ? ' (você se distraiu)' : '') + '</small>';
+  }
+  p.seguidos = 0; mudaVinc(sl, dv);
+  if (tipo === 'normal' && p.arco >= p.meta && p.vinc >= 5){
+    sl.sai = 'alta'; S.altas.push(p.nome); S.rs += BONUS_ALTA; S.ganhoHoje += BONUS_ALTA; rosto = '🎓';
+    linha += '<small>🎓 Alta! ' + p.nome + ' indicou você: +R$ ' + BONUS_ALTA + '</small>';
+  } else if (sl.sai === 'desistiu') linha += '<small>🚪 ' + p.nome + ' avisou que não volta mais.</small>';
+  else if (p.vinc === 0) linha += '<small>⚠️ O vínculo com ' + p.nome + ' está por um fio.</small>';
+  sl.res = {rosto, txt, st:S.stSess, dv};
+  el.aviso.innerHTML = linha;
+  setEmo(el.falaEmo, rosto); setEmo(el.pensaEmo, '💭');
+  el.aviso.hidden = false; el.tempo.style.width = '100%';
+  S.fase = 'saida'; S.espera = tipo === 'emergencia' || sl.sai ? 3.4 : 2.2;
+  dica(''); ui();
+}
+function depois(){
+  if (S.pos >= S.ordem.length - 1){ noite(); return; }
+  const prox = S.ordem[S.pos + 1], livres = prox - S.i - 1;
+  let folga = 0;
+  if (livres > 0){ folga = 8 * livres; S.sm = Math.min(100, S.sm + folga); }
+  intervalo(prox, folga);
+}
+
+/* ---------- intervalo ---------- */
+function ganhoPausa(o){ return o.sm + (S.up.planta && o.sm > 0 ? 4 : 0); }
+function efeito(sm, rs){
+  const a = [];
+  if (sm > 0) a.push('<span class="mais">+' + sm + ' de barra</span>');
+  if (sm < 0) a.push('<span class="menos">−' + (-sm) + ' de barra</span>');
+  if (rs > 0) a.push('<span class="mais">+R$ ' + rs + '</span>');
+  if (rs < 0) a.push('<span class="menos">R$ ' + (-rs) + '</span>');
+  if (rs === 0) a.push('grátis');
+  return a.join(' · ');
+}
+function intervalo(prox, folga){
+  const it = INTERVALOS[prox - 1], sl = S.slots[prox], p = sl.p;
+  S.fase = 'intervalo'; S.hora = it.hora;
+  tela('<h2>' + it.hora + ', intervalo</h2>'
+    + '<p class="lead">' + (folga ? 'Horário vago antes: <span class="mais">+' + folga + ' de barra</span>. ' : '')
+    + 'Às ' + sl.h + ' vem ' + p.av + ' <b>' + p.nome + '</b>, paciente ' + PESO[p.peso]
+    + (p.toca && !S.analise ? ', que mexe com uma questão sua' : '') + '. Escolha uma coisa para fazer agora.</p>'
+    + '<div class="ops">' + it.ops.map(k => {
+        const o = OPS[k], g = ganhoPausa(o), off = (o.rs < 0 && S.rs < -o.rs) || (g < 0 && S.sm <= -g);
+        return '<button class="op" type="button" id="op-' + k + '" data-k="' + k + '"' + (off ? ' disabled' : '') + '><span class="e">' + o.e + '</span><span class="t">' + o.t + '</span>'
+          + '<span class="f">' + efeito(g, o.rs) + '</span>' + (o.extra ? '<span class="x">' + o.extra + '</span>' : '') + (off ? '<span class="x">Não dá agora.</span>' : '') + '</button>';
+      }).join('') + '</div>');
+  document.querySelectorAll('.op').forEach(b => b.addEventListener('click', () => escolher(b.dataset.k)));
+  dica('O intervalo é a hora de recuperar a barra, ou de fazer caixa.'); ui();
+}
+function escolher(k){
+  if (S.fase !== 'intervalo') return;
+  const o = OPS[k];
+  S.sm = Math.min(100, S.sm + ganhoPausa(o)); S.rs += o.rs;
+  if (o.fx === 'analise') S.analise = true;
+  if (o.fx === 'supervisao') S.superv = true;
+  document.querySelectorAll('.op').forEach(b => { b.disabled = true; b.classList.toggle('escolhida', b.dataset.k === k); });
+  S.fase = 'pausa'; S.espera = 1; dica(o.e + ' ' + o.t + '.'); ui();
+}
+
+/* ---------- noite, lojinha, manhã seguinte ---------- */
+function linhasDia(){
+  return S.slots.map(s => {
+    if (!s.p) return '';
+    const p = s.p, r = s.res;
+    const fim = s.sai === 'alta' ? ' · 🎓 teve alta' : s.sai === 'desistiu' ? ' · 🚪 desistiu' : p.vinc === 0 ? ' · ⚠️ por um fio' : '';
+    return '<li><span class="a">' + p.av + '</span><span><span class="nm">' + s.h + ' ' + p.nome + '</span><span class="inf">' + pips(p.vinc)
+      + '<span>' + (r ? r.txt + (r.dv ? ', vínculo ' + sinal(r.dv) : '') : S.folgaHoje ? 'folga avisada' : 'não atendido') + fim + '</span></span></span>'
+      + '<span class="r">' + (r ? r.rosto + (r.st ? ' ⭐' + r.st : '') : '🏖️') + '</span></li>';
+  }).join('');
+}
+function noite(){
+  S.fase = 'noite'; S.hora = '19h';
+  const abriu = S.ordem.length > 0;
+  if (abriu) S.rs -= TURNO;
+  const ultimo = S.dia >= DIAS;
+  const tit = S.folgaHoje ? 'Folga avisada 🏖️' : S.burnout ? 'O Freudinho travou 🫠' : 'Fim do dia ' + S.dia;
+  const txt = S.folgaHoje ? 'Você avisou todo mundo e descansou. Ninguém estranhou.'
+    : S.burnout ? 'A barra zerou no meio de uma sessão. Quem ainda vinha foi desmarcado em cima da hora, e isso pesa no vínculo.'
+    : 'Consultório fechado. Veja como cada um saiu.';
+  tela('<h2>' + tit + '</h2><p class="lead">' + txt + '</p><ul class="pacs">' + linhasDia() + '</ul>'
+    + (abriu ? '<p class="conta">Entrou <span class="mais">R$ ' + S.ganhoHoje + '</span> em sessões · turno <span class="menos">−R$ ' + TURNO + '</span> · caixa ' + din(S.rs) + '</p>' : '')
+    + '<div class="botoes"><button class="botao" id="seguir" type="button">' + (ultimo ? 'Ver o balanço dos três dias' : 'Passar na lojinha') + '</button></div>');
+  $('#seguir').addEventListener('click', () => ultimo ? final() : loja());
+  dica(''); ui();
+}
+function loja(){
+  S.fase = 'loja';
+  tela('<h2>Lojinha da noite</h2><p class="lead">Você tem <b>' + din(S.rs) + '</b>. Lembre que amanhã o turno custa R$ ' + TURNO + ', cobrado no fim do dia.</p>'
+    + '<div class="ops">' + Object.keys(UPS).map(k => {
+        const u = UPS[k], tem = !!S.up[k], off = tem || S.rs < u.rs;
+        return '<button class="op' + (tem ? ' escolhida' : '') + '" type="button" id="up-' + k + '" data-k="' + k + '"' + (off ? ' disabled' : '') + '><span class="e">' + u.e + '</span><span class="t">' + u.t + '</span>'
+          + '<span class="f">' + (tem ? 'comprado' : 'R$ ' + u.rs) + '</span><span class="x">' + u.d + '</span></button>';
+      }).join('') + '</div>'
+    + '<p class="nota">Dormir recupera ' + (SONO + (S.up.yoga ? 15 : 0)) + ' de barra.</p>'
+    + '<div class="botoes"><button class="botao" id="dormir" type="button">Dormir</button></div>');
+  document.querySelectorAll('.op').forEach(b => b.addEventListener('click', () => {
+    const u = UPS[b.dataset.k]; if (S.up[b.dataset.k] || S.rs < u.rs) return;
+    S.rs -= u.rs; S.up[b.dataset.k] = true; loja();
+  }));
+  $('#dormir').addEventListener('click', dormir);
+  dica('Cada melhoria muda como o dia seguinte se joga.'); ui();
+}
+function dormir(){
+  S.sm = Math.min(100, S.sm + SONO + (S.up.yoga ? 15 : 0));
+  S.avisos = [];
+  S.slots.forEach(s => {
+    if (s.sai){
+      const sai = s.p.nome, novoP = S.fila.shift() || null;
+      S.avisos.push(novoP ? novoP.av + ' <b>' + novoP.nome + '</b> veio da lista de espera para o horário das ' + s.h + ', no lugar de ' + sai + '.'
+                          : 'O horário das ' + s.h + ' ficou vago: a lista de espera acabou.');
+      s.p = novoP; s.sai = null;
+    }
+    s.res = null; s.hoje = true;
+  });
+  S.dia++; S.emerg = false; S.analise = false; S.superv = false; S.burnout = false; S.folgaHoje = false; S.ganhoHoje = 0; S.ordem = []; S.i = -1;
+  manha();
+}
+function final(){
+  S.fase = 'final';
+  const perdeu = S.desist.length, altas = S.altas.length;
+  const tit = altas && !perdeu ? 'Consultório em alta' : perdeu >= 2 ? 'Agenda esvaziando' : S.estrelas >= 30 ? 'Três bons dias' : 'Três dias de sobrevivência';
+  const ups = Object.keys(UPS).filter(k => S.up[k]).map(k => UPS[k].e + ' ' + UPS[k].t).join(', ');
+  tela('<h2>' + tit + '</h2>'
+    + '<p class="lead">' + (altas ? 'Alta para ' + lista(S.altas) + '. ' : '') + (perdeu ? (perdeu === 1 ? 'Desistiu: ' : 'Desistiram: ') + lista(S.desist) + '. ' : 'Ninguém desistiu. ')
+    + (S.burnouts ? 'Você travou ' + S.burnouts + (S.burnouts === 1 ? ' vez.' : ' vezes.') : 'Você não travou nenhuma vez.') + '</p>'
+    + '<dl class="placar"><div><dt>Estrelas</dt><dd>⭐ ' + S.estrelas + '</dd></div><div><dt>Caixa</dt><dd>' + din(S.rs) + '</dd></div><div><dt>Barra</dt><dd>' + Math.round(S.sm) + '</dd></div></dl>'
+    + '<h3>Como ficou cada vínculo</h3><ul class="pacs">' + S.slots.map(s => !s.p ? '' :
+        '<li><span class="a">' + s.p.av + '</span><span><span class="nm">' + s.p.nome + '</span><span class="inf">' + pips(s.p.vinc) + '<span>⭐ ' + s.p.arco + '/' + s.p.meta + ' para a alta</span></span></span><span></span></li>').join('') + '</ul>'
+    + '<p class="nota">Insights: ' + S.usados + ' aproveitados, ' + S.passou + ' deixados passar, ' + S.perdidos + ' perdidos por distração.'
+    + (S.emergTotal ? ' Emergências inventadas: ' + S.emergTotal + '.' : '') + (ups ? ' Melhorias: ' + ups + '.' : ' Nenhuma melhoria comprada.') + '</p>'
+    + '<div class="botoes"><button class="botao" id="denovo" type="button">Jogar de novo</button></div>');
+  $('#denovo').addEventListener('click', () => { novo(); mostrar('intro'); dica('Os pontinhos na agenda são o vínculo de cada paciente.'); ui(); });
+  dica(''); ui();
+}
+
+function tick(dt){
+  if (!S) return;
+  if (S.fase === 'sessao'){
+    S.t += dt; S.sm -= S.dreno * dt;
+    if (S.sm <= 0){ encerrar('burnout'); return; }
+    S.tk -= dt; if (S.tk <= 0) proximoSlot();
+    if (S.fase === 'sessao') uiSessao();
+  } else if (S.fase === 'saida'){
+    S.espera -= dt; if (S.espera <= 0) depois();
+  } else if (S.fase === 'pausa'){
+    S.espera -= dt; if (S.espera <= 0){ S.pos++; iniciarSessao(S.ordem[S.pos]); }
+  }
+}
+
+$('#comecar').addEventListener('click', () => { novo(); manha(); });
+el.pensa.addEventListener('click', pegar);
+el.emerg.addEventListener('click', () => { if (S.fase === 'sessao' && !S.emerg){ S.emerg = true; S.emergTotal++; encerrar('emergencia'); } });
+document.addEventListener('keydown', e => {
+  if (e.key !== ' ' || e.target.closest('button')) return;
+  if (S.fase === 'sessao'){ e.preventDefault(); pegar(); }
+});
+
+novo(); ui();
+let last = performance.now();
+setInterval(() => { const now = performance.now(), dt = Math.min(0.2, (now - last) / 1000) * vel(); last = now; tick(dt); }, 40);
+})();
+</script>
+</body>
+</html>

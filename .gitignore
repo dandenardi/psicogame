@@ -1,0 +1,51 @@
+# Gerado pelo Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# Pacotes gerados
+[Pp]ackages/
+!Packages/manifest.json
+!Packages/packages-lock.json
+
+# Arquivos de projeto IDE/editor
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Gerado pela Unity Hub / addressables / IA de código
+.vsconfig
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+/[Aa]ssets/[Aa]ssetStore[Tt]ools*
+/[Aa]ssets/[Pp]lugins/[Ee]ditor/[Jj]et[Bb]rains*
+/[Aa]ssets/StreamingAssets/aa.meta
+/[Aa]ssets/StreamingAssets/aa/*
+
+# Crashlytics / build reports
+crashlytics-build.properties
+*.apk
+*.aab
+*.ipa
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
