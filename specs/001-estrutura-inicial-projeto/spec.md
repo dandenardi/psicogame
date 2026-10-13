@@ -1,6 +1,6 @@
 # 001 - Estrutura inicial do projeto Unity
 
-Status: rascunho
+Status: concluído
 
 ## Objetivo
 
@@ -17,11 +17,11 @@ Criar o esqueleto do projeto em `C:\programming\freudinho` seguindo a arquitetur
 
 ## Critérios de aceite
 
-- [ ] Projeto abre no Unity Hub sem erro.
-- [ ] Estrutura de pastas bate com `ARQUITETURA.md`.
-- [ ] `Boot.unity` carrega e troca pra `Office.unity` sem erro (lógica mínima, sem gameplay real).
-- [ ] Scripts-base compilam sem erro (mesmo sem lógica).
-- [ ] `git status` limpo após commit inicial (`Library/`, `Temp/`, `Obj/`, `Build/` etc. ignorados).
+- [x] Projeto abre no Unity Hub sem erro.
+- [x] Estrutura de pastas bate com `ARQUITETURA.md`.
+- [x] `Boot.unity` carrega e troca pra `Office.unity` sem erro (lógica mínima, sem gameplay real).
+- [x] Scripts-base compilam sem erro (mesmo sem lógica).
+- [x] `git status` limpo após commit inicial (`Library/`, `Temp/`, `Obj/`, `Build/` etc. ignorados).
 
 ## Fora de escopo
 
