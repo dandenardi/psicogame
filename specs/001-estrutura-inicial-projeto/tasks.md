@@ -21,4 +21,4 @@
 - [x] `Boot.unity` carrega e troca para `Office.unity` (via `BootLoader.cs`)
 - [x] Criar scripts-base (stubs) em `Scripts/Systems` e `Scripts/Core`
 - [x] Criar ScriptableObjects-base em `Scripts/Data`
-- [ ] Commit da estrutura
+- [x] Commit da estrutura
