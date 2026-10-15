@@ -1,4 +1,4 @@
 ﻿<Solution>
-  <Project Path="Freudinho.Tests.EditMode.csproj" />
   <Project Path="Freudinho.Runtime.csproj" />
+  <Project Path="Freudinho.Tests.EditMode.csproj" />
 </Solution>

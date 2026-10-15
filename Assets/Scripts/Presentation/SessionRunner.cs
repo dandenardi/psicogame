@@ -83,7 +83,9 @@ namespace Freudinho.Presentation
             var texture = new Texture2D(1, 1);
             texture.SetPixel(0, 0, Color.white);
             texture.Apply();
-            var sprite = Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 100f);
+            // pixelsPerUnit=1: a textura de 1x1 pixel vira 1x1 unidade de mundo (sem isso,
+            // com o padrão de 100 PPU, o quadrado ficava com 0,01 unidade — invisível).
+            var sprite = Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
 
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
