@@ -36,5 +36,9 @@ namespace Freudinho.Data
         [Header("Folga avisada")]
         [Tooltip("A cada quantos dias o jogador pode tirar uma folga avisada")]
         public int intervaloDiasFolga = 3;
+
+        [Header("Sessão (spec 002)")]
+        public float duracaoSessaoSegundos = 20f;
+        public float duracaoJanelaInsightSegundos = 4f;
     }
 }

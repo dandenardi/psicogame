@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c56c52fcbf388842bbe1bab65d94cfc, type: 3}
+  m_Name: DonaLurdes
+  m_EditorClassIdentifier: Freudinho.Runtime::Freudinho.Data.PatientDefinition
+  displayName: Dona Lurdes
+  portrait: {fileID: 0}
+  animatorController: {fileID: 0}
+  desgastePassivo: 9
+  custoInsightMin: 5
+  custoInsightMax: 7
+  estrelasPorInsight: 1
+  temContratransferencia: 0
+  multiplicadorDesgasteContratransferencia: 1
+  bonusInsightContratransferencia: 0
+  vinculoInicial: 0
+  metaEstrelasParaAlta: 8

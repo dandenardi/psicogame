@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b03ee4f06d2dfa4c8a19cc8c267d612, type: 3}
+  m_Name: BalanceConfig
+  m_EditorClassIdentifier: Freudinho.Runtime::Freudinho.Data.BalanceConfig
+  barraInicial: 80
+  barraMaxima: 100
+  recuperacaoSono: 55
+  recuperacaoSonoComYoga: 70
+  valorPorSessao: 120
+  custoTurno: 150
+  bonusVinculoDoisMaisInsights: 1
+  penalidadeVinculoDistracao: -1
+  penalidadeVinculoEmergencia: -2
+  penalidadeVinculoRemarcacao: -1
+  penalidadeVinculoRemarcacaoDiasSeguidos: -2
+  penalidadeVinculoDesmarcacaoBarraZerada: -2
+  limiarVinculoAltaBonusEstrela: 4
+  limiarVinculoBaixoPenalidadeDesgaste: 1
+  multiplicadorDesgasteVinculoBaixo: 0.3
+  intervaloDiasFolga: 3
+  duracaoSessaoSegundos: 20
+  duracaoJanelaInsightSegundos: 4
