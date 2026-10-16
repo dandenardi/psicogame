@@ -67,11 +67,31 @@ namespace Freudinho.Presentation
             }
         }
 
+        private static GUIStyle _hudStyle;
+
         private void OnGUI()
         {
-            GUI.Label(new Rect(10, 10, 320, 24), $"Saúde mental: {_mentalHealth.Current}/{_mentalHealth.Max}");
-            GUI.Label(new Rect(10, 34, 320, 24), $"Estrelas: {_session.StarsEarned}");
-            GUI.Label(new Rect(10, 58, 320, 24), $"Estado da sessão: {_session.State}");
+            // Estilo padrão do OnGUI é cinza claro sobre o fundo bege da câmera — quase
+            // invisível. Texto preto, maior, com fundo opaco por trás de cada linha.
+            if (_hudStyle == null)
+            {
+                _hudStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 18,
+                    normal = { textColor = Color.black }
+                };
+            }
+
+            DrawHudLine(10, $"Saúde mental: {_mentalHealth.Current}/{_mentalHealth.Max}");
+            DrawHudLine(34, $"Estrelas: {_session.StarsEarned}");
+            DrawHudLine(58, $"Estado da sessão: {_session.State}");
+        }
+
+        private static void DrawHudLine(int y, string text)
+        {
+            var rect = new Rect(10, y, 340, 24);
+            GUI.Box(rect, GUIContent.none);
+            GUI.Label(rect, text, _hudStyle);
         }
 
         private static GameObject BuildCharacter(string name, Vector3 position, Color color)
