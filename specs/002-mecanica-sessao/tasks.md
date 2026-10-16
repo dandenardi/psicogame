@@ -34,6 +34,14 @@ conseguir verificar renderização de fonte remotamente.
 
 ## Fechamento
 
-- [ ] Rodar manualmente (Play) e confirmar os critérios de aceite do `spec.md` — **pendente, precisa do Daniel**
+- [x] Rodar manualmente (Play) e confirmar os critérios de aceite do `spec.md` — confirmado pelo Daniel e via `unity-editor-mcp`
 - [x] Rodar os testes Edit Mode e confirmar que passam
-- [ ] Commit
+- [x] Commit
+
+## Bugs achados depois do "pronto" inicial (ver `spec.md` para detalhe)
+
+- [x] Câmera no mesmo Z dos sprites (near clip plane cortava tudo)
+- [x] `patient`/`balance` com `fileID: 0` na cena (NullReferenceException)
+- [x] Sprite com pixels-por-unidade errado (invisível)
+- [x] HUD com contraste ilegível (lógica sempre funcionou, parecia bug de clique)
+- [x] `.gitignore` nunca versionava `Packages/manifest.json` desde o spec 001 (corrigido de passagem)
