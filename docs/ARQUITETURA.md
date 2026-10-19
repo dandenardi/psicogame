@@ -62,6 +62,25 @@ Comunicação entre sistemas e apresentação via eventos (C# events ou um event
 - **HUD**: Canvas screen-space fixo (barra de saúde mental, dinheiro, vínculo, dia/turno) — não depende da câmera isométrica.
 - **Loja**: painel de UI modal; comprar um item atualiza o `EconomyService` **e** spawna/upgrade o prefab do móvel na sala — mecânica e visual sempre em sincronia.
 
+## Direção visual (spec 003)
+
+Mockup de referência: [Freudinho — Direções Visuais](https://claude.ai/artifact/JaLr7fcGtkjsvFEmXhg21h), direção "Aconchegante" — pastel, formas orgânicas arredondadas, câmera isométrica de canto fixo (tipo Final Fantasy Tactics).
+
+Paleta:
+
+| Uso | Cor | Hex |
+|---|---|---|
+| Parede clara (lado da luz) | 🟨 | `#F4E9DC` |
+| Parede escura (lado da sombra) | 🟫 | `#D6B990` |
+| Chão | 🟧 | `#E3B88F` |
+| Freudinho | 🟦 | `#6E97AE` |
+| Paciente | 🟠 | `#E8927C` |
+| Texto/contorno | ⬛ | `#4A3B32` |
+
+Fonte de referência: Baloo 2 (Google Fonts) — ainda não aplicada (balão continua em `TextMesh` legado, ver spec 002).
+
+**Implementado de verdade (não é só o Tilemap isométrico genérico citado abaixo — isso aqui é o que existe hoje em `Office.unity`):** `Grid` com `CellLayout: Isometric Z As Y`, `Tilemap` de chão pintado via código (`IsometricGrid.cs`, losango por raio de Manhattan a partir do centro), câmera ortográfica comum (sem rotação 3D — o losango vem do grid, não da câmera) reenquadrada pra cobrir a área. Personagens posicionados via `Grid.GetCellCenterWorld`, não coordenada de mundo fixa. "Paredes" como no mockup ainda não existem — ficam pra quando tiver sprite de parede de verdade; hoje é só o chão.
+
 ## Estrutura de pastas proposta
 
 ```

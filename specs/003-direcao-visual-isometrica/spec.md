@@ -1,6 +1,6 @@
 # 003 - Direção visual e câmera isométrica
 
-Status: rascunho
+Status: concluído
 
 ## Objetivo
 
@@ -36,13 +36,16 @@ Pra este spec: configuramos o grid isométrico de verdade (chão em losango, per
 
 ## Critérios de aceite
 
-- [ ] Grid da `Office.unity` configurado como `Isometric Z As Y`.
-- [ ] Apertando Play, o chão aparece em losango (não mais quadrado/retangular).
-- [ ] Freudinho e paciente aparecem posicionados sobre células do grid isométrico, com sombra de contato.
-- [ ] Sessão (spec 002) continua funcionando: balões, insight clicável, HUD, estados.
-- [ ] Paleta registrada em `docs/ARQUITETURA.md` (ou arquivo novo, a definir na implementação) pra reuso futuro.
-- [ ] Testes Edit Mode da spec 002 continuam passando (não deve ter regressão de lógica).
-- [ ] `git status` limpo após commit.
+- [x] Grid da `Office.unity` configurado como `Isometric Z As Y`.
+- [x] Apertando Play, o chão aparece em losango (não mais quadrado/retangular).
+- [x] Freudinho e paciente aparecem posicionados sobre células do grid isométrico, com sombra de contato.
+- [x] Sessão (spec 002) continua funcionando: balões, insight clicável, HUD, estados.
+- [x] Paleta registrada em `docs/ARQUITETURA.md` pra reuso futuro.
+- [x] Testes Edit Mode da spec 002 continuam passando (6/6, sem regressão).
+- [x] `git status` limpo após commit.
+
+Confirmado ao vivo via `unity-editor-mcp` (play mode dirigido e capturado remotamente, ver
+`tasks.md` pros bugs achados e corrigidos nessa sessão).
 
 ## Fora de escopo
 

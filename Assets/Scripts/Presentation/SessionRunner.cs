@@ -14,6 +14,7 @@ namespace Freudinho.Presentation
     {
         [SerializeField] private PatientDefinition patient;
         [SerializeField] private BalanceConfig balance;
+        [SerializeField] private IsometricGrid isometricGrid;
 
         private MentalHealthService _mentalHealth;
         private SessionController _session;
@@ -31,14 +32,18 @@ namespace Freudinho.Presentation
             _session.InsightWindowOpened += OnInsightWindowOpened;
             _session.InsightWindowClosed += OnInsightWindowClosed;
 
-            var freudinhoGO = BuildCharacter("Freudinho", new Vector3(-2f, 0f, 0f), new Color(0.45f, 0.62f, 0.9f));
+            var freudinhoPos = isometricGrid.CellToWorld(-1, 1);
+            var freudinhoGO = BuildCharacter("Freudinho", freudinhoPos, new Color(0.45f, 0.62f, 0.9f));
+            AddContactShadow(freudinhoGO.transform);
             var thoughtBubbleGO = CreateBubble(freudinhoGO.transform, Vector3.up * 1.2f, out _thoughtBubble);
             var insightCollider = thoughtBubbleGO.AddComponent<BoxCollider2D>();
             insightCollider.size = new Vector2(1.8f, 0.7f);
             insightCollider.enabled = false;
             thoughtBubbleGO.AddComponent<ClickRelay>().Clicked += () => _session.ResolveInsight();
 
-            var patientGO = BuildCharacter("Paciente", new Vector3(2f, 0f, 0f), new Color(0.95f, 0.6f, 0.3f));
+            var patientPos = isometricGrid.CellToWorld(1, -1);
+            var patientGO = BuildCharacter("Paciente", patientPos, new Color(0.95f, 0.6f, 0.3f));
+            AddContactShadow(patientGO.transform);
             CreateBubble(patientGO.transform, Vector3.up * 1.2f, out _speechBubble);
         }
 
@@ -110,8 +115,27 @@ namespace Freudinho.Presentation
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sprite = sprite;
             renderer.color = color;
+            renderer.sortingOrder = 2;
 
             return go;
+        }
+
+        private static void AddContactShadow(Transform parent)
+        {
+            var go = new GameObject("Shadow");
+            go.transform.SetParent(parent);
+            go.transform.localPosition = new Vector3(0f, -0.62f, 0.01f);
+            go.transform.localScale = new Vector3(0.8f, 0.3f, 1f);
+
+            var texture = new Texture2D(1, 1);
+            texture.SetPixel(0, 0, Color.white);
+            texture.Apply();
+            var sprite = Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+
+            var renderer = go.AddComponent<SpriteRenderer>();
+            renderer.sprite = sprite;
+            renderer.color = new Color(0.29f, 0.23f, 0.2f, 0.55f);
+            renderer.sortingOrder = 1;
         }
 
         private static GameObject CreateBubble(Transform parent, Vector3 localOffset, out TextMesh textMesh)
