@@ -151,6 +151,8 @@ MonoBehaviour:
   patient: {fileID: 11400000, guid: 3d7e9131a2b14f842ac0f223c326e274, type: 2}
   balance: {fileID: 11400000, guid: 0f75c33716cfe494c8b868ca021b583d, type: 2}
   isometricGrid: {fileID: 717787274}
+  freudinhoOutfit: {fileID: 11400000, guid: ac8ab58785be1caef0d9b183f79507ec, type: 2}
+  pacienteOutfit: {fileID: 11400000, guid: dd408eaca4c9c0647c71330a5d2a7aca, type: 2}
 --- !u!4 &19681449
 Transform:
   m_ObjectHideFlags: 0
@@ -345,7 +347,7 @@ TilemapRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -10
   m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}

@@ -81,6 +81,17 @@ Fonte de referência: Baloo 2 (Google Fonts) — ainda não aplicada (balão con
 
 **Implementado de verdade (não é só o Tilemap isométrico genérico citado abaixo — isso aqui é o que existe hoje em `Office.unity`):** `Grid` com `CellLayout: Isometric Z As Y`, `Tilemap` de chão pintado via código (`IsometricGrid.cs`, losango por raio de Manhattan a partir do centro), câmera ortográfica comum (sem rotação 3D — o losango vem do grid, não da câmera) reenquadrada pra cobrir a área. Personagens posicionados via `Grid.GetCellCenterWorld`, não coordenada de mundo fixa. "Paredes" como no mockup ainda não existem — ficam pra quando tiver sprite de parede de verdade; hoje é só o chão.
 
+## Personagens (spec 004)
+
+Freudinho e o paciente deixaram de ser quadrado colorido: são montados em camadas
+(`LayeredCharacter.cs`, um `SpriteRenderer` por peça — corpo, roupa, cabelo, olhos, boca etc.)
+a partir do pack **"Build a Character ~Basics"**, de MaelleMarylloup (itch.io). Licença: uso
+pessoal e comercial permitido, não pode revender os assets soltos, sem crédito obrigatório.
+Peças em `Assets/Art/Characters/`; aparência fixa de cada personagem em
+`Assets/Data/FreudinhoOutfit.asset` / `PacienteOutfit.asset` (`CharacterOutfitAsset.cs`) — sem
+sistema de customização. A boca do paciente troca em runtime conforme o humor
+(`SessionController.MoodChanged`), substituindo o texto `:)`/`:(` do balão da spec 002.
+
 ## Estrutura de pastas proposta
 
 ```

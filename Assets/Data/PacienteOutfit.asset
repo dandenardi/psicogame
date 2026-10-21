@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82460461d06a8a3e81d5625d78411b41, type: 3}
+  m_Name: PacienteOutfit
+  m_EditorClassIdentifier: Freudinho.Runtime::Freudinho.Presentation.CharacterOutfitAsset
+  body: {fileID: 21300000, guid: 729cf01342967e947aa8c4f22098fd54, type: 3}
+  bottom: {fileID: 21300000, guid: c2f2f1f1db6a9ea4b8cd9cc3bfc4474f, type: 3}
+  shoes: {fileID: 21300000, guid: c783e7e46132dd14499c25f7df9b7ef1, type: 3}
+  top: {fileID: 21300000, guid: 77dcdf70fecac0f479e3eb50d739c2b4, type: 3}
+  hair: {fileID: 21300000, guid: b8b4063a15d404246b7206be29584d63, type: 3}
+  eyebrow: {fileID: 21300000, guid: d153cb5cc2f6bb543b38ac768f787069, type: 3}
+  eyes: {fileID: 21300000, guid: c657a4b21e103464a8f12cc6eca10b68, type: 3}
+  eyelashes: {fileID: 21300000, guid: 634b3ace65a38b84987f38ff827a20c5, type: 3}
+  mouthNeutral: {fileID: 21300000, guid: 0cc7641341a08db4ea524d686a7a332a, type: 3}
+  mouthFeeling: {fileID: 21300000, guid: f9162ff921be743488363e167ac3ae9e, type: 3}

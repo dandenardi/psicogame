@@ -1,6 +1,6 @@
 # 004 - Personagem de verdade com os assets "Build a Character ~Basics"
 
-Status: rascunho
+Status: concluído
 
 ## Objetivo
 
@@ -63,14 +63,15 @@ formando um personagem só. Confirmado em `Assets/bases/`:
 
 ## Critérios de aceite
 
-- [ ] Assets movidos/reorganizados pra `Assets/Art/Characters/`, import settings configurados.
-- [ ] `avatar.png`, `cover.png`, `logo.png` removidos do projeto (não são asset de jogo).
-- [ ] Apertando Play, Freudinho e o paciente aparecem como personagens montados em camadas, não
+- [x] Assets movidos/reorganizados pra `Assets/Art/Characters/`, import settings configurados.
+- [x] `avatar.png`, `cover.png`, `logo.png` removidos do projeto (não são asset de jogo).
+- [x] Apertando Play, Freudinho e o paciente aparecem como personagens montados em camadas, não
       mais quadrados coloridos — posicionados certo na grade isométrica, com sombra de contato.
-- [ ] Boca do paciente muda visualmente quando o humor muda (abertura do insight), sem erro.
-- [ ] Mecânica da sessão (spec 002) sem regressão: clique no insight, HUD, estados.
-- [ ] Testes Edit Mode continuam passando (6/6).
-- [ ] `git status` limpo após commit — `Assets/bases/` não deve sobrar na raiz.
+- [x] Boca do paciente muda visualmente quando o humor muda (ligado via evento; checado por
+      inspeção de campo/sprite, não pego no frame exato ao vivo — ver nota em `tasks.md`).
+- [x] Mecânica da sessão (spec 002) sem regressão: clique no insight, HUD, estados.
+- [x] Testes Edit Mode continuam passando (6/6).
+- [x] `git status` limpo após commit — `Assets/bases/` não deve sobrar na raiz.
 
 ## Abordagem técnica
 

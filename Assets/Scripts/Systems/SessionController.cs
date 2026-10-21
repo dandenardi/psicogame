@@ -27,14 +27,14 @@ namespace Freudinho.Systems
         public int StarsEarned { get; private set; }
 
         public event Action PatientArrived;
-        public event Action<string> MoodChanged;
+        /// <summary>true = paciente "sentindo" (janela de insight); false = neutro. A
+        /// apresentação decide o que fazer com isso (sprite, texto etc.) — esta classe não
+        /// sabe nada sobre visual.</summary>
+        public event Action<bool> MoodChanged;
         public event Action InsightWindowOpened;
         public event Action InsightWindowClosed;
         public event Action InsightResolved;
         public event Action SessionEnded;
-
-        private const string MoodNeutral = ":)";
-        private const string MoodFeeling = ":(";
 
         private readonly PatientDefinition _patient;
         private readonly BalanceConfig _balance;
@@ -63,7 +63,7 @@ namespace Freudinho.Systems
                 _mentalHealth.ApplyDrain(_patient.desgastePassivo);
                 State = SessionState.InProgress;
                 PatientArrived?.Invoke();
-                MoodChanged?.Invoke(MoodNeutral);
+                MoodChanged?.Invoke(false);
                 return;
             }
 
@@ -121,7 +121,7 @@ namespace Freudinho.Systems
                 _insightOffered = true;
                 _insightWindowElapsed = 0f;
                 State = SessionState.InsightWindow;
-                MoodChanged?.Invoke(MoodFeeling);
+                MoodChanged?.Invoke(true);
                 InsightWindowOpened?.Invoke();
             }
         }
@@ -129,7 +129,7 @@ namespace Freudinho.Systems
         private void CloseInsightWindow()
         {
             State = SessionState.InProgress;
-            MoodChanged?.Invoke(MoodNeutral);
+            MoodChanged?.Invoke(false);
             InsightWindowClosed?.Invoke();
         }
     }
